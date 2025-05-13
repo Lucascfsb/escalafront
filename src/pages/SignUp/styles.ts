@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 import { shade } from 'polished'
 
-import signInBackground from '../../assets/IMBEL-IA2-762.jpg'
+import signUpBackground from '../../assets/Carro-de-Combate.jpg'
 
 export const Container = styled.div`
   height: 100vh;
@@ -11,7 +11,6 @@ export const Container = styled.div`
 `
 export const Content = styled.div`
   display: flex;
-  
   flex-direction: column;
   align-items: center;
 
@@ -75,6 +74,7 @@ export const Content = styled.div`
 `
 export const Background = styled.div`
   flex: 1;
-  background: url(${signInBackground}) no-repeat center;
+  background: url(${signUpBackground}) no-repeat 0px 0px;
   background-size: cover;
+  background-position: -400px center;
 `
