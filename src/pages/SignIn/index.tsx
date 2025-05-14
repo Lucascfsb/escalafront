@@ -1,5 +1,11 @@
+import type { FormHandles } from '@unform/core'
+import { Form } from '@unform/web'
 import type React from 'react'
+import { useCallback, useRef } from 'react'
 import { FiLock, FiLogIn, FiMail } from 'react-icons/fi'
+import * as Yup from 'yup'
+
+import getValidationErrors from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
 
@@ -8,28 +14,52 @@ import Input from '../../components/Input'
 
 import { Background, Container, Content } from './styles'
 
-const SignIn: React.FC = () => (
-  <Container>
-    <Content>
-      <img src={logoImg} alt="Exército Brasilero" />
+const SignIn: React.FC = () => {
+  const formRef = useRef<FormHandles>(null)
 
-      <form>
-        <h1>Faça seu logon</h1>
-        <Input name="email" icon={FiMail} placeholder="Email" />
-        <Input name="password" icon={FiLock} type="password" placeholder="Senha" />
+  const handleSubmit = useCallback(async (data: object) => {
+    try {
+      formRef.current?.setErrors({})
 
-        <Button type="submit">Entrar</Button>
+      const schema = Yup.object().shape({
+        email: Yup.string().required('E-mail obrigatório').email('Digite um E-mai válido'),
+        password: Yup.string().required('Senha obrigatória!'),
+      })
 
-        <a href="forgot">Esqueci minha senha</a>
-      </form>
+      await schema.validate(data, {
+        abortEarly: false,
+      })
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        const errors = getValidationErrors(err)
+        formRef.current?.setErrors(errors)
+      }
+    }
+  }, [])
 
-      <a href="login">
-        <FiLogIn />
-        Criar conta
-      </a>
-    </Content>
-    <Background />
-  </Container>
-)
+  return (
+    <Container>
+      <Content>
+        <img src={logoImg} alt="Exército Brasilero" />
+
+        <Form ref={formRef} onSubmit={handleSubmit}>
+          <h1>Faça seu logon</h1>
+          <Input name="email" icon={FiMail} placeholder="Email" />
+          <Input name="password" icon={FiLock} type="password" placeholder="Senha" />
+
+          <Button type="submit">Entrar</Button>
+
+          <a href="forgot">Esqueci minha senha</a>
+        </Form>
+
+        <a href="login">
+          <FiLogIn />
+          Criar conta
+        </a>
+      </Content>
+      <Background />
+    </Container>
+  )
+}
 
 export default SignIn
