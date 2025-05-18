@@ -41,7 +41,7 @@ export const Container = styled.div<ContainerProps>`
     flex: 1;
     background: transparent;
     border: 0;
-    color: ${props => (props.$isFilled || props.$isFocused ? '#333' : '#999')};
+    color: inherit;
     font-size: 16px;
     appearance: none;
     cursor: pointer;
