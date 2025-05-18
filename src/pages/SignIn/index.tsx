@@ -1,11 +1,11 @@
 import type { FormHandles } from '@unform/core'
 import { Form } from '@unform/web'
 import type React from 'react'
-import { useCallback, useContext, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { FiChevronDown, FiLock, FiLogIn, FiMail } from 'react-icons/fi'
 import * as Yup from 'yup'
 
-import { AuthContext } from '../../context/AuthContext'
+import { useAuth } from '../../hooks/AuthContext'
 import getValidationErrors from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
@@ -25,7 +25,7 @@ interface SignInFormData {
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
 
-  const { signIn } = useContext(AuthContext)
+  const { signIn } = useAuth()
 
   const handleSubmit = useCallback(
     async (data: SignInFormData) => {
@@ -33,7 +33,9 @@ const SignIn: React.FC = () => {
         formRef.current?.setErrors({})
 
         const schema = Yup.object().shape({
-          email: Yup.string().required('E-mail obrigatório').email('Digite um E-mai válido'),
+          email: Yup.string()
+            .required('E-mail obrigatório')
+            .email('Digite um E-mai válido'),
           password: Yup.string().required('Senha obrigatória!'),
           role: Yup.string().required('Selecione seu nível de acesso'),
         })
@@ -62,7 +64,14 @@ const SignIn: React.FC = () => {
       <Content>
         <img src={logoImg} alt="Exército Brasilero" />
 
-        <Form ref={formRef} onSubmit={handleSubmit}>
+        <Form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          initialData={{ role: '' }}
+          placeholder={undefined}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        >
           <h1>Faça seu logon</h1>
           <Input name="email" icon={FiMail} placeholder="Email" />
           <Input name="password" icon={FiLock} type="password" placeholder="Senha" />

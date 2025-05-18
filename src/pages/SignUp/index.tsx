@@ -22,7 +22,9 @@ const SignUp: React.FC = () => {
 
       const schema = Yup.object().shape({
         name: Yup.string().required('Nome obrigatório'),
-        email: Yup.string().required('E-mail obrigatório').email('Digite um E-mai válido'),
+        email: Yup.string()
+          .required('E-mail obrigatório')
+          .email('Digite um E-mai válido'),
         password: Yup.string().min(6, 'No mínimo 6 dígitos'),
       })
 
@@ -43,7 +45,13 @@ const SignUp: React.FC = () => {
       <Content>
         <img src={logoImg} alt="Exército Brasilero" />
 
-        <Form ref={formRef} onSubmit={handleSubmit}>
+        <Form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          placeholder={undefined}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        >
           <h1>Faça seu Cadastro</h1>
           <Input name="name" icon={FiUser} placeholder="Nome" />
           <Input name="email" icon={FiMail} placeholder="Email" />
