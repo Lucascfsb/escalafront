@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components'
 
 interface ToastProps {
   type?: 'success' | 'error' | 'info'
-  $hasDescription: boolean
+  hasDescription: boolean
 }
 
 export const Container = styled.div`
@@ -69,7 +69,7 @@ export const Toast = styled.div<ToastProps>`
   }
 
   ${props =>
-    !props.$hasDescription &&
+    !props.hasDescription &&
     css`
     align-items: center;
 
