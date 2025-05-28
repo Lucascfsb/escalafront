@@ -1,5 +1,5 @@
 import type React from 'react'
-import { createContext, use, useCallback, useContext, useState } from 'react'
+import { createContext, useCallback, useContext, useState } from 'react'
 import api from '../services/apiClient'
 
 interface AuthState {
