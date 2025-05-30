@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 import { shade } from 'polished'
 
@@ -10,7 +10,7 @@ export const Container = styled.div`
   align-items: stretch;
 `
 export const Content = styled.div`
-  display: flex;
+  display: flex;  
   flex-direction: column;
   align-items: center;
 
@@ -18,9 +18,26 @@ export const Content = styled.div`
   max-width: 800px;  
   padding: 32px;
 
-
   background: linear-gradient(to bottom, ${shade(0.1, '#3d3d00')}, ${shade(0.1, '#808000')});
+`
 
+const appearFromRight = keyframes`
+  from{
+    opacity: 0;
+    transform: translate(50px);
+  }
+  to{
+    opacity: 1;
+    transform: translate(0);
+  }
+`
+
+export const AnimationContainer = styled.div`
+  display: flex;  
+  flex-direction: column;
+  align-items: center;
+
+  animation: ${appearFromRight} 1s;
 
   img {
     max-width: 150px; 
