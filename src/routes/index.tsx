@@ -5,6 +5,7 @@ import ProtectedRoute from './ProtectedRoute'
 
 import Dashboard from '../pages/Dashboard'
 import ForgoPassword from '../pages/ForgotPassword'
+import Profile from '../pages/Profile'
 import ResetPassword from '../pages/ResetPassword'
 import SignIn from '../pages/SignIn'
 import SignUp from '../pages/SignUp'
@@ -19,6 +20,7 @@ const AppRoutes: React.FC = () => (
       path="/dashboard"
       element={<ProtectedRoute element={<Dashboard />} isPrivate />}
     />
+    <Route path="/profile" element={<ProtectedRoute element={<Profile />} isPrivate />} />
   </Routes>
 )
 
