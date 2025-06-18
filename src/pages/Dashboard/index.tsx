@@ -4,7 +4,7 @@ import { FiPower } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
 import logoImg from '../../assets/brasao.svg'
 import { useAuth } from '../../hooks/auth'
-import { Container, Header, HeaderContent, Profile } from './styles'
+import { Container, Header, HeaderContent, Profile, Sidebar } from './styles'
 
 const Dashboard: React.FC = () => {
   const { signOut, user } = useAuth()
@@ -30,6 +30,17 @@ const Dashboard: React.FC = () => {
           </button>
         </HeaderContent>
       </Header>
+
+      <Sidebar>
+        <nav>
+          <ul>
+            <li>Militares</li>
+            <li>Serviços</li>
+            <li>Usuários</li> {/* somente para Admin */}
+            <li>Previsão</li>
+          </ul>
+        </nav>
+      </Sidebar>
     </Container>
   )
 }

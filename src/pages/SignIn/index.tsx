@@ -54,7 +54,7 @@ const SignIn: React.FC = () => {
           role: data.role,
         })
 
-        navigate('/dashboard')
+        navigate('/militaries')
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err)

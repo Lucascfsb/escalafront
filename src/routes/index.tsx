@@ -3,8 +3,8 @@ import { Route, Routes } from 'react-router-dom'
 
 import ProtectedRoute from './ProtectedRoute'
 
-import Dashboard from '../pages/Dashboard'
 import ForgoPassword from '../pages/ForgotPassword'
+import Militaries from '../pages/Militaries'
 import Profile from '../pages/Profile'
 import ResetPassword from '../pages/ResetPassword'
 import SignIn from '../pages/SignIn'
@@ -17,8 +17,8 @@ const AppRoutes: React.FC = () => (
     <Route path="/forgot-password" element={<ForgoPassword />} />
     <Route path="/reset-password" element={<ResetPassword />} />
     <Route
-      path="/dashboard"
-      element={<ProtectedRoute element={<Dashboard />} isPrivate />}
+      path="/militaries"
+      element={<ProtectedRoute element={<Militaries />} isPrivate />}
     />
     <Route path="/profile" element={<ProtectedRoute element={<Profile />} isPrivate />} />
   </Routes>
