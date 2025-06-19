@@ -4,6 +4,7 @@ import { Container } from './styles'
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean
+  variant?: 'primary' | 'danger' | 'info'
 }
 
 const Button: React.FC<ButtonProps> = ({ children, loading, ...rest }) => (

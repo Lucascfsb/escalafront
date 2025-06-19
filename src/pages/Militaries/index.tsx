@@ -73,72 +73,58 @@ const Militaries: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 3
 
-  const filteredMilitaries = useMemo(() => {
-    if (!currentSearchTerm) {
-      return allMilitaries // Se não há termo de busca, exibe todos
-    }
-    // Filtra os militares pelo nome (case-insensitive)
-    return allMilitaries.filter(military =>
-      military.name.toLowerCase().includes(currentSearchTerm.toLowerCase())
-    )
-  }, [allMilitaries, currentSearchTerm])
-
-  const totalPages = Math.ceil(filteredMilitaries.length / itemsPerPage)
+  const totalPages = useMemo(() => {
+    return Math.ceil(allMilitaries.length / itemsPerPage)
+  }, [allMilitaries])
 
   const displayedMilitaries = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
-    return filteredMilitaries.slice(startIndex, endIndex)
-  }, [filteredMilitaries, currentPage])
+    return allMilitaries.slice(startIndex, endIndex)
+  }, [allMilitaries, currentPage])
 
-  const fetchAllMilitaries = useCallback(async () => {
-    setError(null)
-    setIsLoading(true)
-    try {
-      const response = await api.get<Military[]>('/militaries') // Usa sua rota findAll()
-      setAllMilitaries(response.data) // Armazena TODOS os militares
-      setMilitariesLoaded(true)
+  const fetchMilitaries = useCallback(
+    async (name?: string) => {
+      setError(null)
+      setIsLoading(true)
+      try {
+        let url = '/militaries'
+        if (name) {
+          url = `/militaries?name=${encodeURIComponent(name)}`
+        }
 
-      if (response.data.length > 0) {
-        addToast({
-          type: 'success',
-          title: 'Dados Carregados',
-          description: `Foram encontrados ${response.data.length} militar(es) no total.`,
-        })
-      } else {
-        addToast({
-          type: 'info',
-          title: 'Nenhum Militar',
-          description: 'Não há militares cadastrados no momento.',
-        })
+        const response = await api.get<Military[]>(url)
+        setAllMilitaries(response.data)
+        setMilitariesLoaded(true)
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.status === 404) {
+          setError(`Nenhum militar encontrado ${name ? `com o nome "${name}"` : ''}.`)
+          addToast({
+            type: 'error',
+            title: 'Erro ao Carregar',
+            description: `Nenhum militar foi encontrado ou houve um erro na busca ${name ? `com o nome "${name}"` : ''}.`,
+          })
+        } else {
+          setError('Erro ao carregar militares. Tente novamente.')
+          addToast({
+            type: 'error',
+            title: 'Erro de Conexão',
+            description: 'Não foi possível carregar os dados dos militares.',
+          })
+        }
+        setAllMilitaries([])
+        setMilitariesLoaded(false)
+      } finally {
+        setIsLoading(false)
       }
-    } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 404) {
-        setError('Nenhum militar encontrado no banco de dados.')
-        addToast({
-          type: 'error',
-          title: 'Erro ao Carregar',
-          description: 'Nenhum militar foi encontrado ou houve um erro na busca.',
-        })
-      } else {
-        setError('Erro ao carregar militares. Tente novamente.')
-        addToast({
-          type: 'error',
-          title: 'Erro de Conexão',
-          description: 'Não foi possível carregar os dados dos militares.',
-        })
-      }
-      setAllMilitaries([]) // Limpa a lista em caso de erro
-      setMilitariesLoaded(false)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [addToast])
+    },
+    [addToast]
+  )
 
   const reloadDataAndResetPage = useCallback(async () => {
-    await fetchAllMilitaries() // Refaz a busca completa
-    setCurrentPage(1) // Volta para a primeira página
-  }, [fetchAllMilitaries])
+    setCurrentPage(1)
+    await fetchMilitaries(currentSearchTerm || undefined)
+  }, [currentSearchTerm, fetchMilitaries])
 
   const handleSubmitMilitary = useCallback(
     async (data: MilitaryFormData) => {
@@ -226,19 +212,31 @@ const Militaries: React.FC = () => {
     [editingMilitaryId, addToast, reloadDataAndResetPage]
   )
 
-  const handleSearchMilitary = useCallback(async (data: SearchFormData) => {
-    const searchNameValue = data.searchName.trim()
-    setCurrentSearchTerm(searchNameValue) // Atualiza o termo de busca para acionar a filtragem
-    setCurrentPage(1) // Volta para a primeira página dos resultados filtrados
-    formRefSearch.current?.reset() // Limpa o campo de busca
-  }, [])
+  const handleSearchMilitary = useCallback(
+    async (data: SearchFormData) => {
+      const searchNameValue = data.searchName.trim()
+
+      if (!searchNameValue) {
+        addToast({
+          type: 'info',
+          title: 'Campo de Busca Vazio',
+          description: 'Por favor, digite um nome para buscar.',
+        })
+        return
+      }
+
+      setCurrentSearchTerm(searchNameValue)
+      await fetchMilitaries(searchNameValue)
+      formRefSearch.current?.reset()
+    },
+    [addToast, fetchMilitaries]
+  )
 
   const handleListAllMilitaries = useCallback(async () => {
-    setCurrentSearchTerm('') // Limpa o termo de busca para mostrar todos
-    setCurrentPage(1) // Volta para a primeira página
-    formRefSearch.current?.reset() // Limpa o campo de busca por nome
-    await fetchAllMilitaries()
-  }, [fetchAllMilitaries])
+    setCurrentSearchTerm('')
+    formRefSearch.current?.reset()
+    await fetchMilitaries()
+  }, [fetchMilitaries])
 
   const handleEditMilitary = useCallback((military: Military) => {
     setEditingMilitaryId(military.id)
@@ -332,10 +330,8 @@ const Militaries: React.FC = () => {
 
         <Content>
           <MainContent>
-            {error && <p style={{ color: '#c53030', marginBottom: '20px' }}>{error}</p>}
-            {isLoading && (
-              <p style={{ color: '#007bff', marginBottom: '20px' }}>Carregando...</p>
-            )}
+            {error && <p>{error}</p>}
+            {isLoading && <p>Carregando...</p>}
 
             <h2>Buscar Militar por Nome</h2>
             <Form
@@ -354,19 +350,19 @@ const Militaries: React.FC = () => {
               <Button type="submit" disabled={isLoading}>
                 Buscar por Nome
               </Button>
-            </Form>
 
-            <Button
-              onClick={handleListAllMilitaries}
-              disabled={isLoading}
-              style={{ marginBottom: '20px', width: '100%' }}
-            >
-              Listar Todos os Militares
-            </Button>
+              <Button
+                onClick={handleListAllMilitaries}
+                disabled={isLoading}
+                variant="info"
+              >
+                Listar Todos os Militares
+              </Button>
+            </Form>
 
             {militariesLoaded && displayedMilitaries.length > 0 && (
               <>
-                <h3>Militares Encontrados ({filteredMilitaries.length} total):</h3>
+                <h3>Militares Encontrados ({allMilitaries.length} total):</h3>
                 {displayedMilitaries.map(military => (
                   <MilitaryDisplay
                     key={military.id}
@@ -442,6 +438,7 @@ const Militaries: React.FC = () => {
                     })
                     formRef.current?.reset()
                   }}
+                  variant="danger"
                 >
                   Cancelar Edição
                 </Button>
