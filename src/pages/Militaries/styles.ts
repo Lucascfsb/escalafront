@@ -26,7 +26,7 @@ const appearFromTop = keyframes`
 const appearFromRight = keyframes`
   from{
     opacity: 0;
-    transform: translate(50px);
+    transform: translate(150px);
   }
   to{
     opacity: 1;
@@ -118,71 +118,6 @@ export const Profile = styled.div`
   }
 `
 
-export const Sidebar = styled.nav`
-
-  width: 260px;
-  background: linear-gradient(to bottom, ${shade(0.1, '#3d3d00')}, ${shade(0.1, '#808000')});
-  padding: 32px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-
-  flex-shrink: 0;
-  overflow-y: auto;
-
-  @media (max-width: 768px) {
-    width: 80px; 
-    padding: 20px 0;
-
-    > img { 
-      height: 40px; 
-      margin-bottom: 15px;
-    }
-  }
-
-  > img {
-    height: 60px;
-    margin-bottom: 30px;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    width: 100%;
-
-    animation: ${appearFromleft} 1s;
-
-    li {
-      padding: 15px 20px;
-      color: #f4ede8;
-      font-size: 18px;
-      cursor: pointer;
-      transition: background 0.3s, color 0.3s;
-
-      &:hover {
-        background: ${shade(0.2, '#3d3d00')};
-        color: #fff;
-      }
-
-      &.active {
-        background: ${shade(0.2, '#3d3d00')};
-        border-left: 4px solid #f0c14b;
-        font-weight: bold;
-        color: #fff;
-      }
-
-      a {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-        width: 100%;
-        height: 100%;
-      }
-    }
-  }
-`
-
 export const Content = styled.main`
   flex: 1;
   display: flex;
@@ -201,10 +136,9 @@ export const MainContent = styled.div`
 
   animation: ${appearFromRight} 1s;
 
-
   h2 {
     color: #f0c14b;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-size: 28px;
   }
 
@@ -215,96 +149,59 @@ export const MainContent = styled.div`
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-bottom: 40px;
+    margin-bottom: 4px;
     border: 1px solid ${shade(0.1, '#808000')};
   }
 
-
-  ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  li {
-    background: ${shade(0.05, '#312e38')};
-    margin-bottom: 10px;
-    padding: 15px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    border: 1px solid ${shade(0.1, '#312e38')};
-
-
-    div:first-child {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-
-    }
-
-    span {
-      display: block;
+  form > button:first-of-type {
+    background: #f0c14b; /* Cor primária */
+    color: #312e38;
+    &:hover {
+      background: ${shade(0.2, '#f0c14b')};
     }
   }
 
-  .military-details {
-    background: ${shade(0.05, '#312e38')};
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    border: 1px solid ${shade(0.2, '#808000')};
+  form > button:nth-of-type(2) {
+    background: #c53030; 
+    color: #fff;
+    &:hover {
+      background: ${shade(0.2, '#c53030')};
+    }
+  }
 
-    display: flex;
-    justify-content: space-between; 
-    align-items: flex-start; 
+`
 
-    .button-group { 
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 0;
-      flex-shrink: 0;
+export const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 10px;
 
-      button {
-        margin-left: 0;
-        margin-top: 0; 
-        padding: 10px 15px;
-        font-size: 16px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background 0.2s;
-        width: 240px;
+  button {
+    background: #f0c14b; /* Cor para os botões de paginação */
+    color: #312e38; /* Cor do texto do botão */
+    border: 0;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    width: auto; /* Garante que o padding defina a largura */
 
-
-        &:first-of-type { 
-          background: #f0c14b; 
-          color: #312e38;
-          &:hover {
-            background: ${shade(0.2, '#f0c14b')};
-          }
-        }
-
-        &:last-of-type { 
-          background: #c53030;
-          color: #fff;
-          &:hover {
-            background: ${shade(0.2, '#c53030')};
-          }
-        }
-      }
+    &:hover {
+      background: ${shade(0.2, '#f0c14b')};
     }
 
-    h3 {
-      color: #f0c14b;
-      margin-bottom: 0; 
-      margin-right: 10px; 
+    &:disabled {
+      background: ${shade(0.4, '#f0c14b')}; /* Cor mais escura para desabilitado */
+      cursor: not-allowed;
+      opacity: 0.6;
     }
+  }
 
-    p {
-      margin-bottom: 0; 
-    }
+  /* Estilo para o texto da página atual */
+  span {
+    color: #f4ede8;
+    align-self: center; /* Alinha o texto verticalmente com os botões */
+    font-weight: bold;
   }
 `
