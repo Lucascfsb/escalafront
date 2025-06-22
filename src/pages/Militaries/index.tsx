@@ -5,32 +5,22 @@ import { format, isValid, parse, parseISO } from 'date-fns'
 import type React from 'react'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { FiAward, FiBookmark, FiCalendar, FiPower, FiUser } from 'react-icons/fi'
-import { Link } from 'react-router-dom'
+import { FiAward, FiBookmark, FiCalendar, FiUser } from 'react-icons/fi'
 
 import * as Yup from 'yup'
-import logoImg from '../../assets/brasao.svg'
-import { useAuth } from '../../hooks/auth'
 import { useToast } from '../../hooks/toast'
 import api from '../../services/apiClient'
 import getValidationErrors from '../../utils/getValidationErrors'
 
 import Button from '../../components/Button'
+import MilitaryDisplay from '../../components/InfoDisplay/Display/MilitaryDisplay'
 import Input from '../../components/Input'
-import MilitaryDisplay from '../../components/MilitaryDisplay'
-import SideBar from '../../components/Sidebar'
+import Layout from '../../components/Layout'
+import Pagination from '../../components/Pagination'
 
-import {
-  Container,
-  Content,
-  Header,
-  HeaderContent,
-  MainContent,
-  PaginationContainer,
-  Profile,
-} from './styles'
+import { MainContent } from './styles'
 
-interface Military {
+export interface Military {
   id: string
   name: string
   rank: string
@@ -54,7 +44,6 @@ interface SearchFormData {
 const Militaries: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
   const formRefSearch = useRef<FormHandles>(null)
-  const { signOut, user } = useAuth()
   const { addToast } = useToast()
 
   const [newMilitaryData, setNewMilitaryData] = useState<MilitaryFormData>({
@@ -94,6 +83,7 @@ const Militaries: React.FC = () => {
         }
 
         const response = await api.get<Military[]>(url)
+        console.log('Resposta da API:', response.data)
         setAllMilitaries(response.data)
         setMilitariesLoaded(true)
       } catch (err) {
@@ -296,73 +286,44 @@ const Militaries: React.FC = () => {
   )
 
   return (
-    <Container>
-      <Header>
-        <HeaderContent>
-          <img src={logoImg} alt="Exército Brasileiro" />
+    <Layout>
+      <MainContent>
+        {error && <p>{error}</p>}
+        {isLoading && <p>Carregando...</p>}
 
-          <Profile>
-            <img src={user.avatar_url} alt={user.username} />
-            <div>
-              <span>Bem-vindo</span>
-              <Link to="/profile">
-                <strong>{user.username}</strong>
-              </Link>
-            </div>
-          </Profile>
+        <h2>Buscar Militar por Nome</h2>
+        <Form
+          ref={formRefSearch}
+          onSubmit={handleSearchMilitary}
+          placeholder={undefined}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        >
+          <Input
+            name="searchName"
+            icon={FiUser}
+            type="text"
+            placeholder="Nome do Militar para busca."
+          />
+          <Button type="submit" disabled={isLoading}>
+            Buscar por Nome
+          </Button>
 
-          <button type="button" onClick={signOut}>
-            <FiPower />
-          </button>
-        </HeaderContent>
-      </Header>
+          <Button onClick={handleListAllMilitaries} disabled={isLoading} variant="info">
+            Listar Todos os Militares
+          </Button>
+        </Form>
 
-      <div style={{ display: 'flex', flex: 1, width: '100%' }}>
-        <SideBar
-          navItems={[
-            { path: '/militaries', label: 'Militares' },
-            { path: '/services', label: 'Serviços' },
-            { path: '/forecast', label: 'Previsão' },
-            { path: '/schedule', label: 'Escala de serviço' },
-            { path: '/users', label: 'Usuários' },
-          ]}
-        />
+        {militariesLoaded && (
+          <>
+            <h3>
+              {currentSearchTerm
+                ? `Militares Encontrados (${allMilitaries.length} total)`
+                : `Todos os Militares (${allMilitaries.length} total)`}
+            </h3>
 
-        <Content>
-          <MainContent>
-            {error && <p>{error}</p>}
-            {isLoading && <p>Carregando...</p>}
-
-            <h2>Buscar Militar por Nome</h2>
-            <Form
-              ref={formRefSearch}
-              onSubmit={handleSearchMilitary}
-              placeholder={undefined}
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
-            >
-              <Input
-                name="searchName"
-                icon={FiUser}
-                type="text"
-                placeholder="Nome do Militar para busca."
-              />
-              <Button type="submit" disabled={isLoading}>
-                Buscar por Nome
-              </Button>
-
-              <Button
-                onClick={handleListAllMilitaries}
-                disabled={isLoading}
-                variant="info"
-              >
-                Listar Todos os Militares
-              </Button>
-            </Form>
-
-            {militariesLoaded && displayedMilitaries.length > 0 && (
-              <>
-                <h3>Militares Encontrados ({allMilitaries.length} total):</h3>
+            {allMilitaries.length > 0 ? (
+              <div>
                 {displayedMilitaries.map(military => (
                   <MilitaryDisplay
                     key={military.id}
@@ -371,83 +332,74 @@ const Militaries: React.FC = () => {
                     onDelete={handleDeleteMilitary}
                   />
                 ))}
-
-                {totalPages > 1 && (
-                  <PaginationContainer>
-                    <Button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1 || isLoading}
-                    >
-                      Anterior
-                    </Button>
-                    <span>
-                      Página {currentPage} de {totalPages}
-                    </span>
-                    <Button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages || isLoading}
-                    >
-                      Próxima
-                    </Button>
-                  </PaginationContainer>
-                )}
-              </>
+              </div>
+            ) : (
+              <p>Nenhum militar encontrado</p>
             )}
 
-            <h2>{editingMilitaryId ? 'Atualizar Militar' : 'Cadastrar Novo Militar'}</h2>
-            <Form
-              ref={formRef}
-              onSubmit={handleSubmitMilitary}
-              initialData={newMilitaryData}
-              placeholder={undefined}
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
-            >
-              <Input name="name" icon={FiUser} placeholder="Nome de Guerra" />
-              <Input
-                name="rank"
-                icon={FiBookmark}
-                placeholder="Patente (Sd, Cb, Sgt, etc.)"
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                isLoading={isLoading}
               />
-              <Input
-                name="qualification"
-                icon={FiAward}
-                placeholder="Qualificação (Especialização, Combatente, etc.)"
-              />
-              <Input
-                name="date_of_entry"
-                icon={FiCalendar}
-                type="text"
-                placeholder="DD/MM/AAAA"
-                mask="99/99/9999"
-              />
+            )}
+          </>
+        )}
 
-              <Button type="submit">
-                {editingMilitaryId ? 'Salvar Alterações' : 'Cadastrar Militar'}
-              </Button>
-              {editingMilitaryId && (
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setEditingMilitaryId(null)
-                    setNewMilitaryData({
-                      name: '',
-                      rank: '',
-                      qualification: '',
-                      date_of_entry: '',
-                    })
-                    formRef.current?.reset()
-                  }}
-                  variant="danger"
-                >
-                  Cancelar Edição
-                </Button>
-              )}
-            </Form>
-          </MainContent>
-        </Content>
-      </div>
-    </Container>
+        <h2>{editingMilitaryId ? 'Atualizar Militar' : 'Cadastrar Novo Militar'}</h2>
+        <Form
+          ref={formRef}
+          onSubmit={handleSubmitMilitary}
+          initialData={newMilitaryData}
+          placeholder={undefined}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        >
+          <Input name="name" icon={FiUser} placeholder="Nome de Guerra" />
+          <Input
+            name="rank"
+            icon={FiBookmark}
+            placeholder="Patente (Sd, Cb, Sgt, etc.)"
+          />
+          <Input
+            name="qualification"
+            icon={FiAward}
+            placeholder="Qualificação (Especialização, Combatente, etc.)"
+          />
+          <Input
+            name="date_of_entry"
+            icon={FiCalendar}
+            type="text"
+            placeholder="DD/MM/AAAA"
+            mask="99/99/9999"
+          />
+
+          <Button type="submit">
+            {editingMilitaryId ? 'Salvar Alterações' : 'Cadastrar Militar'}
+          </Button>
+          {editingMilitaryId && (
+            <Button
+              type="button"
+              onClick={() => {
+                setEditingMilitaryId(null)
+                setNewMilitaryData({
+                  name: '',
+                  rank: '',
+                  qualification: '',
+                  date_of_entry: '',
+                })
+                formRef.current?.reset()
+              }}
+              variant="danger"
+            >
+              Cancelar Edição
+            </Button>
+          )}
+        </Form>
+      </MainContent>
+    </Layout>
   )
 }
 
