@@ -17,6 +17,7 @@ import MilitaryDisplay from '../../components/InfoDisplay/Display/MilitaryDispla
 import Input from '../../components/Input'
 import Layout from '../../components/Layout'
 import Pagination from '../../components/Pagination'
+import Select from '../../components/Select'
 
 import { MainContent } from './styles'
 
@@ -83,7 +84,6 @@ const Militaries: React.FC = () => {
         }
 
         const response = await api.get<Military[]>(url)
-        console.log('Resposta da API:', response.data)
         setAllMilitaries(response.data)
         setMilitariesLoaded(true)
       } catch (err) {
@@ -137,6 +137,7 @@ const Militaries: React.FC = () => {
               return isValid(parsedDate)
             }),
         })
+        console.log(data)
 
         await schema.validate(data, {
           abortEarly: false,
@@ -358,16 +359,36 @@ const Militaries: React.FC = () => {
           onPointerLeaveCapture={undefined}
         >
           <Input name="name" icon={FiUser} placeholder="Nome de Guerra" />
-          <Input
+          <Select
             name="rank"
             icon={FiBookmark}
-            placeholder="Patente (Sd, Cb, Sgt, etc.)"
+            options={[
+              { value: 'Sd', label: 'Sd' },
+              { value: 'Cb', label: 'Cb' },
+              { value: '3° Sgt', label: '3° Sgt' },
+              { value: '2° Sgt', label: '2° Sgt' },
+              { value: '1° Sgt', label: '1° Sgt' },
+              { value: 'Asp', label: 'Asp' },
+              { value: '2° Ten', label: '2° Ten' },
+              { value: '1° Ten', label: '1° Ten' },
+              { value: 'Cap', label: 'Cap' },
+              { value: 'Maj', label: 'Maj' },
+              { value: 'Ten-Cel', label: 'Ten-Cel' },
+              { value: 'Cel', label: 'Cel' },
+            ]}
           />
-          <Input
+          <Select
             name="qualification"
             icon={FiAward}
-            placeholder="Qualificação (Especialização, Combatente, etc.)"
+            options={[
+              { value: 'Formação', label: 'Formação' },
+              { value: 'Especialização', label: 'Especialização' },
+              { value: 'Aperfeiçoamento', label: 'Aperfeiçoamento' },
+              { value: 'Altos Estudos I', label: 'Altos Estudos I' },
+              { value: 'Altos Estudos II', label: 'Altos Estudos II' },
+            ]}
           />
+
           <Input
             name="date_of_entry"
             icon={FiCalendar}

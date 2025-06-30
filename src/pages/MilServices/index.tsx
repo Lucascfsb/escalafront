@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type React from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { FiAlignJustify, FiUser } from 'react-icons/fi'
+import { FiAlignJustify, FiBookmark, FiUser } from 'react-icons/fi'
 import * as Yup from 'yup'
 import { useToast } from '../../hooks/toast'
 import api from '../../services/apiClient'
@@ -17,12 +17,14 @@ import ServiceDisplay from '../../components/InfoDisplay/Display/ServiceDisplay'
 
 import Layout from '../../components/Layout'
 import Pagination from '../../components/Pagination'
+import Select from '../../components/Select'
 import { MainContent } from './styles'
 
 interface ServiceType {
   id: string
   name: string
   description: string
+  rank: string
   created_at: string
   update_at: string
 }
@@ -30,6 +32,7 @@ interface ServiceType {
 interface ServiceTypeFormData {
   name: string
   description: string
+  rank: string
 }
 
 interface searchService {
@@ -45,6 +48,7 @@ const MilServices: React.FC = () => {
   const [newServiceTypeData, setNewServiceTypeData] = useState<ServiceTypeFormData>({
     name: '',
     description: '',
+    rank: 'Selecione uma Opção',
   })
 
   const [allServicesType, setAllServicesType] = useState<ServiceType[]>([])
@@ -124,6 +128,8 @@ const MilServices: React.FC = () => {
 
         setIsLoading(true)
 
+        console.log(data)
+
         await schema.validate(data, {
           abortEarly: false,
         })
@@ -142,6 +148,7 @@ const MilServices: React.FC = () => {
           await api.post('/serviceTypes', {
             name: data.name,
             description: data.description,
+            rank: data.rank,
             created_at: new Date().toISOString(),
             update_at: new Date().toISOString(),
           })
@@ -154,7 +161,7 @@ const MilServices: React.FC = () => {
         }
 
         setEditingServiceTypesId(null)
-        setNewServiceTypeData({ name: '', description: '' })
+        setNewServiceTypeData({ name: '', description: '', rank: 'Selecione uma Opção' })
         formRef.current?.reset()
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
@@ -209,6 +216,7 @@ const MilServices: React.FC = () => {
     setNewServiceTypeData({
       name: serviceType.name,
       description: serviceType.description,
+      rank: serviceType.rank,
     })
   }, [])
 
@@ -331,6 +339,23 @@ const MilServices: React.FC = () => {
             name="description"
             icon={FiAlignJustify}
             placeholder="Descrição do Serviço"
+          />
+          <Select
+            name="rank"
+            icon={FiBookmark}
+            options={[
+              { value: 'Sd', label: 'Sd' },
+              { value: 'Cb', label: 'Cb' },
+              { value: 'Serviço de Sgt', label: 'Serviço de Sgt' },
+              {
+                value: 'Serviço de Oficial Subalterno',
+                label: 'Serviço de Oficial Subalterno',
+              },
+              {
+                value: 'Serviço de Oficial Superior',
+                label: 'Serviço de Oficial Superior',
+              },
+            ]}
           />
           <Button type="submit">{'Cadastrar Serviço'}</Button>
           <Button

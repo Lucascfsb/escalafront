@@ -18,6 +18,10 @@ export const Container = styled.div<ContainerProps>`
   align-items: center;
   color: #999;
 
+  & + div {
+      margin-top: 8px;
+  }
+
    ${props =>
      props.$isErrored &&
      css`

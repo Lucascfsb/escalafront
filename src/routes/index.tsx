@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 
 import ProtectedRoute from './ProtectedRoute'
 
+import Forecast from '../pages/Forecast'
 import ForgoPassword from '../pages/ForgotPassword'
 import MilServices from '../pages/MilServices'
 import Militaries from '../pages/Militaries'
@@ -24,6 +25,10 @@ const AppRoutes: React.FC = () => (
     <Route
       path="/services"
       element={<ProtectedRoute element={<MilServices />} isPrivate />}
+    />
+    <Route
+      path="/forecast"
+      element={<ProtectedRoute element={<Forecast />} isPrivate />}
     />
     <Route path="/profile" element={<ProtectedRoute element={<Profile />} isPrivate />} />
   </Routes>

@@ -16,6 +16,7 @@ const ServiceDisplay: React.FC<ServiceDisplayProps> = ({ service, onEdit, onDele
     fields={[
       { label: 'Nome', value: service.name },
       { label: 'Descrição', value: service.description },
+      { label: 'Graduação', value: service.rank },
       {
         label: 'Criado em',
         value: new Date(service.created_at).toLocaleDateString(),

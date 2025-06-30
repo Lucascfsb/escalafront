@@ -13,4 +13,5 @@ export interface Military extends BaseItem {
 
 export interface Service extends BaseItem {
   description: string
+  rank: string
 }
