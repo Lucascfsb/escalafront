@@ -61,7 +61,7 @@ const Militaries: React.FC = () => {
   const [militariesLoaded, setMilitariesLoaded] = useState(false)
 
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 3
+  const itemsPerPage = 5
 
   const totalPages = useMemo(() => {
     return Math.ceil(allMilitaries.length / itemsPerPage)

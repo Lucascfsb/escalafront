@@ -1,13 +1,7 @@
 import type React from 'react'
 import { createContext, useCallback, useContext, useState } from 'react'
+import type { User } from '../@types/types'
 import api from '../services/apiClient'
-
-interface User {
-  id: string
-  avatar_url: string
-  username: string
-  email: string
-}
 
 interface AuthState {
   token: string

@@ -15,3 +15,11 @@ export interface Service extends BaseItem {
   description: string
   rank: string
 }
+
+export interface User {
+  id: string
+  avatar_url: string
+  username: string
+  email: string
+  role: 'admin' | 'usuário' | 'consulta'
+}

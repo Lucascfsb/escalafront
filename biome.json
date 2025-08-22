@@ -6,7 +6,9 @@
     "useIgnoreFile": false
   },
   "files": {
-    "ignore": ["node_modules"]
+    "ignore": [
+      "node_modules"
+    ]
   },
   "formatter": {
     "indentStyle": "space",
