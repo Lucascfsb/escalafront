@@ -47,4 +47,4 @@ const Toast: React.FC<ToastProps> = ({ message, style }) => {
   )
 }
 
-export default Toast
+export { Toast }

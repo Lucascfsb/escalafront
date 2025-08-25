@@ -25,4 +25,4 @@ const ServiceDisplay: React.FC<ServiceDisplayProps> = ({ service, onEdit, onDele
   />
 )
 
-export default ServiceDisplay
+export { ServiceDisplay }

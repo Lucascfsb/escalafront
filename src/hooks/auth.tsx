@@ -1,7 +1,7 @@
 import type React from 'react'
 import { createContext, useCallback, useContext, useState } from 'react'
 import type { User } from '../@types/types'
-import api from '../services/apiClient'
+import {api} from '../services/apiClient'
 
 interface AuthState {
   token: string
@@ -11,7 +11,6 @@ interface AuthState {
 interface SignInCredentials {
   email: string
   password: string
-  role: string
 }
 
 interface AuthContextData {
@@ -37,11 +36,10 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     return {} as AuthState
   })
 
-  const signIn = useCallback(async ({ email, password, role }: SignInCredentials) => {
+  const signIn = useCallback(async ({ email, password }: SignInCredentials) => {
     const response = await api.post('sessions', {
       email,
       password,
-      role,
     })
 
     const { token, user } = response.data

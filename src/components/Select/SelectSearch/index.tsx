@@ -41,4 +41,4 @@ const SelectSearch: React.FC<SearchableSelectProps> = ({
   )
 }
 
-export default SelectSearch
+export { SelectSearch }

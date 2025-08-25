@@ -1,5 +1,5 @@
 import type React from 'react'
-import Button from '../Button'
+import {Button} from '../Button'
 import { PaginationContainer } from './styles'
 
 interface PaginationProps {
@@ -38,4 +38,4 @@ const Pagination: React.FC<PaginationProps> = ({
   )
 }
 
-export default Pagination
+export { Pagination }

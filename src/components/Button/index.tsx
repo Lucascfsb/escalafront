@@ -13,4 +13,4 @@ const Button: React.FC<ButtonProps> = ({ children, loading, ...rest }) => (
   </Container>
 )
 
-export default Button
+export { Button }

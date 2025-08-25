@@ -34,4 +34,4 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems, className }) => {
   )
 }
 
-export default Sidebar
+export { Sidebar }

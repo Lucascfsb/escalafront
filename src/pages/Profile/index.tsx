@@ -11,15 +11,15 @@ import {
 } from 'react-icons/fi'
 import * as Yup from 'yup'
 
-import api from '../../services/apiClient'
+import {api} from '../../services/apiClient'
 
 import { useToast } from '../../hooks/toast'
 
-import getValidationErrors from '../../utils/getValidationErrors'
+import {getValidationErrors} from '../../utils/getValidationErrors'
 
-import Button from '../../components/Button'
-import Input from '../../components/Input'
-import Select from '../../components/Select'
+import {Button} from '../../components/Button'
+import {Input} from '../../components/Input'
+import {Select} from '../../components/Select'
 
 import { useCallback, useRef } from 'react'
 import type { ChangeEvent } from 'react'
@@ -192,4 +192,4 @@ const Profile: React.FC = () => {
   )
 }
 
-export default Profile
+export {Profile}

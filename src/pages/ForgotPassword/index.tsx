@@ -7,14 +7,14 @@ import { Link } from 'react-router-dom'
 import * as Yup from 'yup'
 
 import { useToast } from '../../hooks/toast'
-import getValidationErrors from '../../utils/getValidationErrors'
+import {getValidationErrors} from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
 
-import Button from '../../components/Button'
-import Input from '../../components/Input'
+import {Button} from '../../components/Button'
+import {Input} from '../../components/Input'
 
-import api from '../../services/apiClient'
+import {api} from '../../services/apiClient'
 import { AnimationContainer, Background, Container, Content } from './styles'
 
 interface ForgotPasswordFormData {
@@ -107,4 +107,4 @@ const ForgotPassword: React.FC = () => {
   )
 }
 
-export default ForgotPassword
+export {ForgotPassword}

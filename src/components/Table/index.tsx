@@ -1,7 +1,7 @@
 import { isSameDay, parseISO } from 'date-fns'
 import type React from 'react'
 
-import SelectSearch from '../Select/SelectSearch'
+import {SelectSearch} from '../Select/SelectSearch'
 
 import {
   SelectInput,
@@ -142,4 +142,4 @@ const Table: React.FC<TableProps> = ({
   )
 }
 
-export default Table
+export { Table }

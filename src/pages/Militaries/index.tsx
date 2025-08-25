@@ -1,52 +1,35 @@
 import type { FormHandles } from '@unform/core'
 import { Form } from '@unform/web'
 import axios from 'axios'
-import { format, isValid, parse, parseISO } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import type React from 'react'
+import { ValidationError } from 'yup';
+import * as Yup from 'yup';
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { FiAward, FiBookmark, FiCalendar, FiUser } from 'react-icons/fi'
 
-import * as Yup from 'yup'
-import { useToast } from '../../hooks/toast'
-import api from '../../services/apiClient'
-import getValidationErrors from '../../utils/getValidationErrors'
 
-import Button from '../../components/Button'
-import MilitaryDisplay from '../../components/InfoDisplay/Display/MilitaryDisplay'
-import Input from '../../components/Input'
-import Layout from '../../components/Layout'
-import Pagination from '../../components/Pagination'
-import Select from '../../components/Select'
+import { useToast } from '../../hooks/toast'
+import {api} from '../../services/apiClient'
+import {getValidationErrors} from '../../utils/getValidationErrors'
+
+import {Button} from '../../components/Button'
+import {MilitaryDisplay} from '../../components/InfoDisplay/Display/MilitaryDisplay'
+import {Input} from '../../components/Input'
+import {Layout} from '../../components/Layout'
+import {Pagination} from '../../components/Pagination'
+import {Select} from '../../components/Select'
 
 import { MainContent } from './styles'
+import { Military, MilitaryFormData, SearchFormData } from './types'
+import { militaresSchema } from './schema'
 
-export interface Military {
-  id: string
-  name: string
-  rank: string
-  qualification: string
-  date_of_entry: string
-  created_at: string
-  update_at: string
-}
-
-interface MilitaryFormData {
-  name: string
-  rank: string
-  qualification: string
-  date_of_entry: string
-}
-
-interface SearchFormData {
-  searchName: string
-}
-
-const Militaries: React.FC = () => {
+export const Militaries: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
   const formRefSearch = useRef<FormHandles>(null)
   const { addToast } = useToast()
-
+  
   const [newMilitaryData, setNewMilitaryData] = useState<MilitaryFormData>({
     name: '',
     rank: '',
@@ -84,6 +67,7 @@ const Militaries: React.FC = () => {
         }
 
         const response = await api.get<Military[]>(url)
+
         setAllMilitaries(response.data)
         setMilitariesLoaded(true)
       } catch (err) {
@@ -121,25 +105,7 @@ const Militaries: React.FC = () => {
       try {
         formRef.current?.setErrors({})
 
-        const schema = Yup.object().shape({
-          name: Yup.string().required('Nome é obrigatório'),
-          rank: Yup.string().required('Patente é obrigatória'),
-          qualification: Yup.string().required('Qualificação é obrigatória'),
-          date_of_entry: Yup.string()
-            .required('Data de entrada é obrigatória')
-            .matches(
-              /^\d{4}-\d{2}-\d{2}$/,
-              'Formato de data inválido. Use AAAA-MM-DD (ex: 1994-04-06).'
-            )
-            .test('is-valid-date', 'Data inválida ou inexistente', value => {
-              if (!value) return false
-              const parsedDate = parse(value, 'yyyy-MM-dd', new Date())
-              return isValid(parsedDate)
-            }),
-        })
-        console.log(data)
-
-        await schema.validate(data, {
+        await militaresSchema.validate(data, {
           abortEarly: false,
         })
 
@@ -423,5 +389,3 @@ const Militaries: React.FC = () => {
     </Layout>
   )
 }
-
-export default Militaries

@@ -9,4 +9,4 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => (
   </AuthProvider>
 )
 
-export default AppProvider
+export { AppProvider }

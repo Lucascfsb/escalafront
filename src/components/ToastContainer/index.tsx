@@ -1,7 +1,7 @@
 import type React from 'react'
 import { useTransition } from 'react-spring'
 
-import Toast from './Toast'
+import {Toast} from './Toast'
 
 import type { ToastMessage } from '../../hooks/toast'
 import { Container } from './styles'
@@ -27,4 +27,4 @@ const ToastContainer: React.FC<ToastCointainerProps> = ({ messages }) => {
   )
 }
 
-export default ToastContainer
+export { ToastContainer }

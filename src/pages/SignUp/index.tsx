@@ -4,17 +4,17 @@ import type React from 'react'
 import { FiArrowLeft, FiChevronDown, FiLock, FiMail, FiUser } from 'react-icons/fi'
 import * as Yup from 'yup'
 
-import api from '../../services/apiClient'
+import {api} from '../../services/apiClient'
 
 import { useToast } from '../../hooks/toast'
 
-import getValidationErrors from '../../utils/getValidationErrors'
+import {getValidationErrors} from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
 
-import Button from '../../components/Button'
-import Input from '../../components/Input'
-import Select from '../../components/Select'
+import {Button} from '../../components/Button'
+import {Input} from '../../components/Input'
+import {Select} from '../../components/Select'
 
 import { useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -118,4 +118,4 @@ const SignUp: React.FC = () => {
   )
 }
 
-export default SignUp
+export {SignUp}

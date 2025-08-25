@@ -3,7 +3,7 @@ import { FiPower } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
 import logoImg from '../../assets/brasao.svg'
 import { useAuth } from '../../hooks/auth'
-import SideBar from '../Sidebar'
+import {Sidebar} from '../Sidebar'
 import { Container, Content, Header, HeaderContent, Profile } from './styles'
 
 interface LayoutProps {
@@ -45,11 +45,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Header>
 
       <div style={{ display: 'flex', flex: 1, width: '100%' }}>
-        <SideBar navItems={navItems} />
+        <Sidebar navItems={navItems} />
         <Content>{children}</Content>
       </div>
     </Container>
   )
 }
 
-export default Layout
+export { Layout }

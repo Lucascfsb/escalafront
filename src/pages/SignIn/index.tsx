@@ -8,13 +8,12 @@ import * as Yup from 'yup'
 
 import { useAuth } from '../../hooks/auth'
 import { useToast } from '../../hooks/toast'
-import getValidationErrors from '../../utils/getValidationErrors'
+import {getValidationErrors} from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
 
-import Button from '../../components/Button'
-import Input from '../../components/Input'
-import Select from '../../components/Select'
+import {Button} from '../../components/Button'
+import {Input} from '../../components/Input'
 
 import { AnimationContainer, Background, Container, Content } from './styles'
 
@@ -41,7 +40,6 @@ const SignIn: React.FC = () => {
             .required('E-mail obrigatório')
             .email('Digite um E-mai válido'),
           password: Yup.string().required('Senha obrigatória!'),
-          role: Yup.string().required('Selecione seu nível de acesso'),
         })
 
         await schema.validate(data, {
@@ -51,7 +49,6 @@ const SignIn: React.FC = () => {
         await signIn({
           email: data.email,
           password: data.password,
-          role: data.role,
         })
 
         navigate('/militaries')
@@ -90,15 +87,6 @@ const SignIn: React.FC = () => {
             <h1>Faça seu logon</h1>
             <Input name="email" icon={FiMail} placeholder="Email" />
             <Input name="password" icon={FiLock} type="password" placeholder="Senha" />
-            <Select
-              name="role"
-              icon={FiChevronDown}
-              options={[
-                { value: 'admin', label: 'Administrador' },
-                { value: 'usuário', label: 'Usuário' },
-                { value: 'consulta', label: 'Consulta' },
-              ]}
-            />
 
             <Button type="submit">Entrar</Button>
 
@@ -116,4 +104,4 @@ const SignIn: React.FC = () => {
   )
 }
 
-export default SignIn
+export {SignIn}

@@ -29,4 +29,4 @@ const MilitaryDisplay: React.FC<MilitaryDisplayProps> = ({
   />
 )
 
-export default MilitaryDisplay
+export { MilitaryDisplay }
