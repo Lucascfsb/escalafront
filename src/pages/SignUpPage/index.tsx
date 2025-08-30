@@ -4,30 +4,32 @@ import type React from 'react'
 import { FiArrowLeft, FiChevronDown, FiLock, FiMail, FiUser } from 'react-icons/fi'
 import * as Yup from 'yup'
 
-import {api} from '../../services/apiClient'
+import { api } from '../../services/apiClient'
 
 import { useToast } from '../../hooks/toast'
 
-import {getValidationErrors} from '../../utils/getValidationErrors'
+import { getValidationErrors } from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
 
-import {Button} from '../../components/Button'
-import {Input} from '../../components/Input'
-import {Select} from '../../components/Select'
+import { Button } from '../../components/Button'
+import { Input } from '../../components/Input'
+import { Select } from '../../components/Select'
 
 import { useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { SignUpPageSchema } from './schema'
 import { AnimationContainer, Background, Container, Content } from './styles'
 
 interface SignUpFormData {
   username: string
   email: string
   password: string
+  password_confirmation: string
   role: string
 }
 
-const SignUp: React.FC = () => {
+const SignUpPage: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
   const { addToast } = useToast()
   const navigate = useNavigate()
@@ -37,16 +39,7 @@ const SignUp: React.FC = () => {
       try {
         formRef.current?.setErrors({})
 
-        const schema = Yup.object().shape({
-          username: Yup.string().required('Nome de Usuário obrigatório'),
-          email: Yup.string()
-            .required('E-mail obrigatório')
-            .email('Digite um E-mai válido'),
-          password: Yup.string().min(6, 'No mínimo 6 dígitos'),
-          role: Yup.string().required('Selecione seu nível de acesso'),
-        })
-
-        await schema.validate(data, {
+        await SignUpPageSchema.validate(data, {
           abortEarly: false,
         })
 
@@ -93,8 +86,14 @@ const SignUp: React.FC = () => {
           >
             <h1>Faça seu Cadastro</h1>
             <Input name="username" icon={FiUser} placeholder="Nome de Usuário" />
-            <Input name="email" icon={FiMail} type="email" placeholder="Email" />
+            <Input name="email" icon={FiMail} placeholder="Email" />
             <Input name="password" icon={FiLock} type="password" placeholder="Senha" />
+            <Input
+              name="password_confirmation"
+              icon={FiLock}
+              type="password"
+              placeholder="Confirmação de Senha"
+            />
             <Select
               name="role"
               icon={FiChevronDown}
@@ -118,4 +117,4 @@ const SignUp: React.FC = () => {
   )
 }
 
-export {SignUp}
+export { SignUpPage }

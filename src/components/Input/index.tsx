@@ -59,6 +59,10 @@ const Input: React.FC<InputProps> = ({
     [mask]
   )
 
+  const handleInputFocus = useCallback(() => {
+    setIsFocused(true)
+  }, [])
+
   const handleInputBlur = useCallback(() => {
     setIsFocused(false)
     setIsFilled(!!inputRef.current?.value)
@@ -103,6 +107,7 @@ const Input: React.FC<InputProps> = ({
     >
       {Icon && <Icon size={20} />}
       <input
+        onFocus={handleInputFocus}
         onBlur={handleInputBlur}
         onChange={handleChange}
         value={displayValue}

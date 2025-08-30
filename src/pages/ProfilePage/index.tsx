@@ -11,15 +11,15 @@ import {
 } from 'react-icons/fi'
 import * as Yup from 'yup'
 
-import {api} from '../../services/apiClient'
+import { api } from '../../services/apiClient'
 
 import { useToast } from '../../hooks/toast'
 
-import {getValidationErrors} from '../../utils/getValidationErrors'
+import { getValidationErrors } from '../../utils/getValidationErrors'
 
-import {Button} from '../../components/Button'
-import {Input} from '../../components/Input'
-import {Select} from '../../components/Select'
+import { Button } from '../../components/Button'
+import { Input } from '../../components/Input'
+import { Select } from '../../components/Select'
 
 import { useCallback, useRef } from 'react'
 import type { ChangeEvent } from 'react'
@@ -37,7 +37,7 @@ interface ProfileFormData {
   passwordConfirmation?: string
 }
 
-const Profile: React.FC = () => {
+const ProfilePage: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
   const { addToast } = useToast()
   const navigate = useNavigate()
@@ -109,18 +109,30 @@ const Profile: React.FC = () => {
   )
 
   const handleAvatarChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files) {
+    async (e: ChangeEvent<HTMLInputElement>) => {
+      try {
+        if (!e.target.files || e.target.files.length === 0) {
+          return
+        }
+
+        const file = e.target.files[0]
+
         const data = new FormData()
+        data.append('avatar', file)
 
-        data.append('avatar', e.target.files[0])
+        const response = await api.patch('/users/avatar', data)
 
-        api.patch('/users/avatar', data).then(response => {
-          updateUser(response.data)
-          addToast({
-            type: 'success',
-            title: 'Avatar atualizado!',
-          })
+        updateUser(response.data)
+
+        addToast({
+          type: 'success',
+          title: 'Avatar atualizado!',
+        })
+      } catch (err) {
+        addToast({
+          type: 'error',
+          title: 'Erro ao atualizar avatar',
+          description: 'Ocorreu um erro ao atualizar seu avatar, tente novamente!',
         })
       }
     },
@@ -192,4 +204,4 @@ const Profile: React.FC = () => {
   )
 }
 
-export {Profile}
+export { ProfilePage }

@@ -4,20 +4,20 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { FiAlignJustify, FiBookmark, FiUser } from 'react-icons/fi'
 import * as Yup from 'yup'
 import { useToast } from '../../hooks/toast'
-import {api} from '../../services/apiClient'
-import {getValidationErrors} from '../../utils/getValidationErrors'
+import { api } from '../../services/apiClient'
+import { getValidationErrors } from '../../utils/getValidationErrors'
 
 import type { FormHandles } from '@unform/core'
 import { Form } from '@unform/web'
 
-import {Button} from '../../components/Button'
-import {Input} from '../../components/Input'
+import { Button } from '../../components/Button'
+import { Input } from '../../components/Input'
 
-import {ServiceDisplay} from '../../components/InfoDisplay/Display/ServiceDisplay'
+import { ServiceDisplay } from '../../components/InfoDisplay/Display/ServiceDisplay'
 
-import {Layout} from '../../components/Layout'
-import {Pagination} from '../../components/Pagination'
-import {Select} from '../../components/Select'
+import { Layout } from '../../components/Layout'
+import { Pagination } from '../../components/Pagination'
+import { Select } from '../../components/Select'
 import { MainContent } from './styles'
 
 interface ServiceType {
@@ -39,7 +39,7 @@ interface searchService {
   searchName: string
 }
 
-const MilServices: React.FC = () => {
+const MilServicesPage: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
   const formRefSearch = useRef<FormHandles>(null)
 
@@ -373,4 +373,4 @@ const MilServices: React.FC = () => {
   )
 }
 
-export {MilServices}
+export { MilServicesPage }

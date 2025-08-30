@@ -3,33 +3,32 @@ import { Form } from '@unform/web'
 import axios from 'axios'
 import { format, parseISO } from 'date-fns'
 import type React from 'react'
-import { ValidationError } from 'yup';
-import * as Yup from 'yup';
+import { ValidationError } from 'yup'
+import * as Yup from 'yup'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { FiAward, FiBookmark, FiCalendar, FiUser } from 'react-icons/fi'
 
-
 import { useToast } from '../../hooks/toast'
-import {api} from '../../services/apiClient'
-import {getValidationErrors} from '../../utils/getValidationErrors'
+import { api } from '../../services/apiClient'
+import { getValidationErrors } from '../../utils/getValidationErrors'
 
-import {Button} from '../../components/Button'
-import {MilitaryDisplay} from '../../components/InfoDisplay/Display/MilitaryDisplay'
-import {Input} from '../../components/Input'
-import {Layout} from '../../components/Layout'
-import {Pagination} from '../../components/Pagination'
-import {Select} from '../../components/Select'
+import { Button } from '../../components/Button'
+import { MilitaryDisplay } from '../../components/InfoDisplay/Display/MilitaryDisplay'
+import { Input } from '../../components/Input'
+import { Layout } from '../../components/Layout'
+import { Pagination } from '../../components/Pagination'
+import { Select } from '../../components/Select'
 
+import { militaresPageSchema } from './schema'
 import { MainContent } from './styles'
-import { Military, MilitaryFormData, SearchFormData } from './types'
-import { militaresSchema } from './schema'
+import type { Military, MilitaryFormData, SearchFormData } from './types'
 
-export const Militaries: React.FC = () => {
+export const MilitariesPage: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
   const formRefSearch = useRef<FormHandles>(null)
   const { addToast } = useToast()
-  
+
   const [newMilitaryData, setNewMilitaryData] = useState<MilitaryFormData>({
     name: '',
     rank: '',
@@ -105,7 +104,7 @@ export const Militaries: React.FC = () => {
       try {
         formRef.current?.setErrors({})
 
-        await militaresSchema.validate(data, {
+        await militaresPageSchema.validate(data, {
           abortEarly: false,
         })
 

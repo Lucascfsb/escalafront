@@ -93,5 +93,4 @@ export const Background = styled.div`
   flex: 1;
   background: url(${signUpBackground}) no-repeat 0px 0px;
   background-size: cover;
-  background-position: -400px center;
 `

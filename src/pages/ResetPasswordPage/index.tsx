@@ -7,14 +7,14 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 
 import { useToast } from '../../hooks/toast'
-import {getValidationErrors} from '../../utils/getValidationErrors'
+import { getValidationErrors } from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
 
-import {Button} from '../../components/Button'
-import {Input} from '../../components/Input'
+import { Button } from '../../components/Button'
+import { Input } from '../../components/Input'
 
-import {api} from '../../services/apiClient'
+import { api } from '../../services/apiClient'
 import { AnimationContainer, Background, Container, Content } from './styles'
 
 interface ResetPasswordFormData {
@@ -22,7 +22,7 @@ interface ResetPasswordFormData {
   password_confirmation: string
 }
 
-const ResetPassword: React.FC = () => {
+const ResetPasswordPage: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
 
   const { addToast } = useToast()
@@ -116,4 +116,4 @@ const ResetPassword: React.FC = () => {
   )
 }
 
-export {ResetPassword}
+export { ResetPasswordPage }

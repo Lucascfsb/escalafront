@@ -14,11 +14,11 @@ import type React from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../hooks/auth'
 import { useToast } from '../../hooks/toast'
-import {api} from '../../services/apiClient'
+import { api } from '../../services/apiClient'
 
-import {Button} from '../../components/Button'
-import {Layout} from '../../components/Layout'
-import {Table} from '../../components/Table'
+import { Button } from '../../components/Button'
+import { Layout } from '../../components/Layout'
+import { Table } from '../../components/Table'
 import { MainContent } from './styles'
 
 export interface ServiceType {
@@ -48,7 +48,7 @@ interface Military {
   update_at: string
 }
 
-const Forecast: React.FC = () => {
+const ForecastPage: React.FC = () => {
   const { addToast } = useToast()
   const { user } = useAuth()
   const isAdmin = user?.role === 'admin'
@@ -396,4 +396,4 @@ const Forecast: React.FC = () => {
   )
 }
 
-export { Forecast }
+export { ForecastPage }
