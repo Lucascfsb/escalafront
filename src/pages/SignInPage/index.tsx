@@ -1,18 +1,15 @@
-import type { FormHandles } from '@unform/core'
-import { Form } from '@unform/web'
+import { yupResolver } from '@hookform/resolvers/yup'
 import type React from 'react'
-import { useCallback, useRef } from 'react'
+import { useCallback, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { FiLock, FiLogIn, FiMail } from 'react-icons/fi'
 import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 
 import { useAuth } from '../../hooks/auth'
 import { useToast } from '../../hooks/toast'
-import { getValidationErrors } from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
-
-import { SignInPageSchema } from './schema'
 
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
@@ -24,21 +21,29 @@ interface SignInFormData {
   password: string
 }
 
-const SignInPage: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
+const schema = Yup.object().shape({
+  email: Yup.string().required('E-mail obrigatório').email('Digite um E-mail válido'),
+  password: Yup.string().required('Senha obrigatória'),
+})
 
+const SignInPage: React.FC = () => {
+  const [loading, setLoading] = useState(false)
   const { signIn } = useAuth()
   const { addToast } = useToast()
   const navigate = useNavigate()
 
-  const handleSubmit = useCallback(
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInFormData>({
+    resolver: yupResolver(schema),
+  })
+
+  const onSubmit = useCallback(
     async (data: SignInFormData) => {
       try {
-        formRef.current?.setErrors({})
-
-        await SignInPageSchema.validate(data, {
-          abortEarly: false,
-        })
+        setLoading(true)
 
         await signIn({
           email: data.email,
@@ -47,18 +52,13 @@ const SignInPage: React.FC = () => {
 
         navigate('/militaries')
       } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-          formRef.current?.setErrors(errors)
-
-          return
-        }
-
         addToast({
           type: 'error',
           title: 'Erro na autenticação',
-          description: 'Occoreu um erro ao fazer login, cheque suas credenciais.',
+          description: 'Ocorreu um erro ao fazer login, cheque suas credenciais.',
         })
+      } finally {
+        setLoading(false)
       }
     },
     [signIn, addToast, navigate]
@@ -68,23 +68,43 @@ const SignInPage: React.FC = () => {
     <Container>
       <Content>
         <AnimationContainer>
-          <img src={logoImg} alt="Exército Brasilero" />
+          <img src={logoImg} alt="Exército Brasileiro" />
 
-          <Form
-            ref={formRef}
-            onSubmit={handleSubmit}
-            placeholder={undefined}
-            onPointerEnterCapture={undefined}
-            onPointerLeaveCapture={undefined}
-          >
+          <form onSubmit={handleSubmit(onSubmit)}>
             <h1>Faça seu logon</h1>
-            <Input name="email" icon={FiMail} placeholder="Email" />
-            <Input name="password" icon={FiLock} type="password" placeholder="Senha" />
 
-            <Button type="submit">Entrar</Button>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  icon={FiMail}
+                  placeholder="Email"
+                  {...field}
+                  error={errors.email?.message}
+                />
+              )}
+            />
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  icon={FiLock}
+                  type="password"
+                  placeholder="Senha"
+                  {...field}
+                  error={errors.password?.message}
+                />
+              )}
+            />
+
+            <Button type="submit" loading={loading}>
+              Entrar
+            </Button>
 
             <Link to="/forgot-password">Esqueci minha senha</Link>
-          </Form>
+          </form>
 
           <Link to="/signup">
             <FiLogIn />

@@ -1,6 +1,8 @@
 import type React from 'react'
 import Select, { type SingleValue } from 'react-select'
 import { SelectStyles } from './styles'
+import type { IconBaseProps } from 'react-icons'
+
 
 interface OptionType {
   value: string
@@ -9,6 +11,7 @@ interface OptionType {
 
 interface SearchableSelectProps {
   options: OptionType[]
+  icon: React.ComponentType<IconBaseProps>
   value: string | null
   onChange: (value: string | null) => void
   placeholder?: string

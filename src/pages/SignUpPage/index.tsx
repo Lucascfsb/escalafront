@@ -1,24 +1,21 @@
-import type { FormHandles } from '@unform/core'
-import { Form } from '@unform/web'
+import { yupResolver } from '@hookform/resolvers/yup'
 import type React from 'react'
+import { useCallback, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { FiArrowLeft, FiChevronDown, FiLock, FiMail, FiUser } from 'react-icons/fi'
+import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 
 import { api } from '../../services/apiClient'
 
 import { useToast } from '../../hooks/toast'
 
-import { getValidationErrors } from '../../utils/getValidationErrors'
-
 import logoImg from '../../assets/brasao.svg'
 
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
-import { Select } from '../../components/Select'
+import { SelectSearch } from '../../components/SelectSearch'
 
-import { useCallback, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { SignUpPageSchema } from './schema'
 import { AnimationContainer, Background, Container, Content } from './styles'
 
 interface SignUpFormData {
@@ -29,20 +26,35 @@ interface SignUpFormData {
   role: string
 }
 
+const SignUpPageSchema = Yup.object().shape({
+  username: Yup.string().required('Nome de Usuário obrigatório'),
+  email: Yup.string().required('E-mail obrigatório').email('Digite um E-mail válido'),
+  password: Yup.string()
+    .min(6, 'A senha deve ter no mínimo 6 dígitos')
+    .required('Senha obrigatória'),
+  password_confirmation: Yup.string()
+    .oneOf([Yup.ref('password'), undefined], 'Confirmação de senha incorreta')
+    .required('Confirmação de senha obrigatória'),
+  role: Yup.string().required('Selecione seu nível de acesso'),
+})
+
 const SignUpPage: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
+  const [loading, setLoading] = useState(false)
   const { addToast } = useToast()
   const navigate = useNavigate()
 
-  const handleSubmit = useCallback(
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignUpFormData>({
+    resolver: yupResolver(SignUpPageSchema),
+  })
+
+  const onSubmit = useCallback(
     async (data: SignUpFormData) => {
       try {
-        formRef.current?.setErrors({})
-
-        await SignUpPageSchema.validate(data, {
-          abortEarly: false,
-        })
-
+        setLoading(true)
         await api.post('/users', data)
 
         navigate('/')
@@ -53,18 +65,13 @@ const SignUpPage: React.FC = () => {
           description: 'Você já pode fazer seu logon!',
         })
       } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-          formRef.current?.setErrors(errors)
-
-          return
-        }
-
         addToast({
           type: 'error',
           title: 'Erro no cadastro',
-          description: 'Occoreu um erro ao fazer o cadastro, tente novamente!',
+          description: 'Ocorreu um erro ao fazer o cadastro, tente novamente!',
         })
+      } finally {
+        setLoading(false)
       }
     },
     [addToast, navigate]
@@ -75,37 +82,81 @@ const SignUpPage: React.FC = () => {
       <Background />
       <Content>
         <AnimationContainer>
-          <img src={logoImg} alt="Exército Brasilero" />
+          <img src={logoImg} alt="Exército Brasileiro" />
 
-          <Form
-            ref={formRef}
-            onSubmit={handleSubmit}
-            placeholder={undefined}
-            onPointerEnterCapture={undefined}
-            onPointerLeaveCapture={undefined}
-          >
+          <form onSubmit={handleSubmit(onSubmit)}>
             <h1>Faça seu Cadastro</h1>
-            <Input name="username" icon={FiUser} placeholder="Nome de Usuário" />
-            <Input name="email" icon={FiMail} placeholder="Email" />
-            <Input name="password" icon={FiLock} type="password" placeholder="Senha" />
-            <Input
-              name="password_confirmation"
-              icon={FiLock}
-              type="password"
-              placeholder="Confirmação de Senha"
+
+            <Controller
+              name="username"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  icon={FiUser}
+                  placeholder="Nome de Usuário"
+                  {...field}
+                  error={errors.username?.message}
+                />
+              )}
             />
-            <Select
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  icon={FiMail}
+                  placeholder="Email"
+                  {...field}
+                  error={errors.email?.message}
+                />
+              )}
+            />
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  icon={FiLock}
+                  type="password"
+                  placeholder="Senha"
+                  {...field}
+                  error={errors.password?.message}
+                />
+              )}
+            />
+            <Controller
+              name="password_confirmation"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  icon={FiLock}
+                  type="password"
+                  placeholder="Confirmação de Senha"
+                  {...field}
+                  error={errors.password_confirmation?.message}
+                />
+              )}
+            />
+            <Controller
               name="role"
-              icon={FiChevronDown}
-              options={[
-                { value: 'admin', label: 'Administrador' },
-                { value: 'usuário', label: 'Usuário' },
-                { value: 'consulta', label: 'Consulta' },
-              ]}
+              control={control}
+              render={({ field }) => (
+                <SelectSearch
+                  icon={FiChevronDown}
+                  options={[
+                    { value: 'admin', label: 'Administrador' },
+                    { value: 'usuário', label: 'Usuário' },
+                    { value: 'consulta', label: 'Consulta' },
+                  ]}
+                  {...field}
+                />
+              )}
             />
 
-            <Button type="submit">Cadastrar</Button>
-          </Form>
+            <Button type="submit" loading={loading}>
+              Cadastrar
+            </Button>
+          </form>
 
           <Link to="/">
             <FiArrowLeft />

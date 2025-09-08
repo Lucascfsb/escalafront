@@ -1,21 +1,20 @@
-import type { FormHandles } from '@unform/core'
-import { Form } from '@unform/web'
 import type React from 'react'
-import { useCallback, useRef, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { useCallback, useState } from 'react'
 import { FiLogIn, FiMail } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
-import * as Yup from 'yup'
 
 import { useToast } from '../../hooks/toast'
-import { getValidationErrors } from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
 
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
+import { ForgotPasswordSchema } from './schema'
 
 import { api } from '../../services/apiClient'
 import { AnimationContainer, Background, Container, Content } from './styles'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 interface ForgotPasswordFormData {
   email: string
@@ -24,26 +23,16 @@ interface ForgotPasswordFormData {
 const ForgotPasswordPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
 
-  const formRef = useRef<FormHandles>(null)
-
   const { addToast } = useToast()
 
-  const handleSubmit = useCallback(
+  const { control, handleSubmit, formState: { errors } } = useForm<ForgotPasswordFormData>({
+    resolver: yupResolver(ForgotPasswordSchema),
+  })
+
+  const onSubmit = useCallback(
     async (data: ForgotPasswordFormData) => {
       try {
         setLoading(true)
-
-        formRef.current?.setErrors({})
-
-        const schema = Yup.object().shape({
-          email: Yup.string()
-            .required('E-mail obrigatório')
-            .email('Digite um E-mai válido'),
-        })
-
-        await schema.validate(data, {
-          abortEarly: false,
-        })
 
         await api.post('password/forgot', {
           email: data.email,
@@ -56,23 +45,16 @@ const ForgotPasswordPage: React.FC = () => {
             'Enviamos um e-mail para confirmar a recuperação de senha, cheque sua caixa de entrada!',
         })
       } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-          formRef.current?.setErrors(errors)
-
-          return
-        }
-
         addToast({
           type: 'error',
-          title: 'Erro ao recuperara a senha',
-          description: 'Occoreu um erro ao realizar o , cheque suas credenciais.',
+          title: 'Erro ao recuperar a senha',
+          description: 'Ocorreu um erro ao realizar a recuperação de senha, verifique o e-mail informado.',
         })
       } finally {
         setLoading(false)
       }
     },
-    [addToast]
+    [addToast],
   )
 
   return (
@@ -81,20 +63,29 @@ const ForgotPasswordPage: React.FC = () => {
         <AnimationContainer>
           <img src={logoImg} alt="Exército Brasilero" />
 
-          <Form
-            ref={formRef}
-            onSubmit={handleSubmit}
-            placeholder={undefined}
-            onPointerEnterCapture={undefined}
-            onPointerLeaveCapture={undefined}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
           >
             <h1>Faça seu logon</h1>
-            <Input name="email" icon={FiMail} placeholder="Email" />
+
+
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  icon={FiMail}
+                  placeholder="Email"
+                  {...field}
+                  error={errors.email?.message}
+                />
+              )}
+            />
 
             <Button loading={loading} type="submit">
               Recuperar
             </Button>
-          </Form>
+          </form>
 
           <Link to="/">
             <FiLogIn />

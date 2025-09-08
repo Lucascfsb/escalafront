@@ -1,35 +1,11 @@
 import { shade } from 'polished'
-import styled, { keyframes } from 'styled-components'
-
-const appearFromleft = keyframes`
-  from{
-    opacity: 0;
-    transform: translate(-50px);
-  }
-  to{
-    opacity: 1;
-    transform: translate(0);
-  }
-`
-
-const appearFromTop = keyframes`
-  from{
-    opacity: 0.5;
-    transform: translateY(-50px);
-  }
-  to{
-    opacity: 1;
-    transform: translateY(0);
-  }
-`
+import styled from 'styled-components'
 
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background-color: #312e38;
-
-    animation: ${appearFromleft} 1s;
 `
 
 export const Content = styled.main`
@@ -46,7 +22,6 @@ export const Header = styled.header`
   width: 100%;
   flex-shrink: 0; 
   
-  animation: ${appearFromTop} 0.8s;
 `
 
 export const HeaderContent = styled.div`

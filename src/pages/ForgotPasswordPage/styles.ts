@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 
 import { shade } from 'polished'
 
@@ -21,23 +21,11 @@ export const Content = styled.div`
   background: linear-gradient(to bottom, ${shade(0.1, '#3d3d00')}, ${shade(0.1, '#808000')});
 `
 
-const appearFromleft = keyframes`
-  from{
-    opacity: 0;
-    transform: translate(-50px);
-  }
-  to{
-    opacity: 1;
-    transform: translate(0);
-  }
-`
-
 export const AnimationContainer = styled.div`
   display: flex;  
   flex-direction: column;
   align-items: center;
 
-  animation: ${appearFromleft} 1s;
 
   img {
     max-width: 150px; 

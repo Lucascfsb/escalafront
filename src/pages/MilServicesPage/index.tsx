@@ -1,23 +1,21 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import axios from 'axios'
 import type React from 'react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { FiAlignJustify, FiBookmark, FiUser } from 'react-icons/fi'
 import * as Yup from 'yup'
+
 import { useToast } from '../../hooks/toast'
 import { api } from '../../services/apiClient'
-import { getValidationErrors } from '../../utils/getValidationErrors'
-
-import type { FormHandles } from '@unform/core'
-import { Form } from '@unform/web'
 
 import { Button } from '../../components/Button'
-import { Input } from '../../components/Input'
-
 import { ServiceDisplay } from '../../components/InfoDisplay/Display/ServiceDisplay'
-
+import { Input } from '../../components/Input'
 import { Layout } from '../../components/Layout'
 import { Pagination } from '../../components/Pagination'
-import { Select } from '../../components/Select'
+import { SelectSearch } from '../../components/SelectSearch'
+
 import { MainContent } from './styles'
 
 interface ServiceType {
@@ -29,27 +27,28 @@ interface ServiceType {
   update_at: string
 }
 
-interface ServiceTypeFormData {
+export interface ServiceTypeFormData {
   name: string
   description: string
   rank: string
 }
 
-interface searchService {
+interface SearchServiceData {
   searchName: string
 }
 
+const serviceTypeSchema = Yup.object().shape({
+  name: Yup.string().required('Nome é obrigatório'),
+  description: Yup.string().default(''),
+  rank: Yup.string().required('Selecione uma patente'),
+})
+
+const searchServiceSchema = Yup.object().shape({
+  searchName: Yup.string().default(''),
+})
+
 const MilServicesPage: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
-  const formRefSearch = useRef<FormHandles>(null)
-
   const { addToast } = useToast()
-
-  const [newServiceTypeData, setNewServiceTypeData] = useState<ServiceTypeFormData>({
-    name: '',
-    description: '',
-    rank: 'Selecione uma Opção',
-  })
 
   const [allServicesType, setAllServicesType] = useState<ServiceType[]>([])
   const [currentSearchTerm, setCurrentSearchTerm] = useState<string>('')
@@ -61,6 +60,29 @@ const MilServicesPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 3
 
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ServiceTypeFormData>({
+    resolver: yupResolver(serviceTypeSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      rank: 'Selecione uma Opção',
+    },
+  })
+
+  const {
+    control: searchControl,
+    handleSubmit: handleSearchSubmit,
+    reset: resetSearchForm,
+    formState: { errors: searchErrors },
+  } = useForm<SearchServiceData>({
+    resolver: yupResolver(searchServiceSchema),
+  })
+
   const totalPages = useMemo(() => {
     return Math.ceil(allServicesType.length / itemsPerPage)
   }, [allServicesType])
@@ -70,30 +92,23 @@ const MilServicesPage: React.FC = () => {
       setError(null)
       setIsLoading(true)
       try {
-        let url = '/serviceTypes'
-        if (name) {
-          url = `/serviceTypes?name=${encodeURIComponent(name)}`
-        }
-
+        const url = name
+          ? `/serviceTypes?name=${encodeURIComponent(name)}`
+          : '/serviceTypes'
         const response = await api.get<ServiceType[]>(url)
         setAllServicesType(response.data)
         setServicesTypesLoaded(true)
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
           setError(`Nenhum serviço encontrado ${name ? `com o nome "${name}"` : ''}.`)
-          addToast({
-            type: 'error',
-            title: 'Erro ao Carregar',
-            description: `Nenhum serviço foi encontrado ou houve um erro na busca ${name ? `com o nome "${name}"` : ''}.`,
-          })
         } else {
           setError('Erro ao carregar serviços. Tente novamente.')
-          addToast({
-            type: 'error',
-            title: 'Erro de Conexão',
-            description: 'Não foi possível carregar os dados dos serviços.',
-          })
         }
+        addToast({
+          type: 'error',
+          title: 'Erro de Conexão',
+          description: 'Não foi possível carregar os dados dos serviços.',
+        })
         setAllServicesType([])
         setServicesTypesLoaded(false)
       } finally {
@@ -108,6 +123,10 @@ const MilServicesPage: React.FC = () => {
     await fetchServiceType(currentSearchTerm || undefined)
   }, [currentSearchTerm, fetchServiceType])
 
+  useEffect(() => {
+    fetchServiceType()
+  }, [fetchServiceType])
+
   const displayedServicesTypes = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
@@ -119,21 +138,6 @@ const MilServicesPage: React.FC = () => {
       setIsLoading(true)
       setError(null)
       try {
-        formRef.current?.setErrors({})
-
-        const schema = Yup.object().shape({
-          name: Yup.string().required('Nome é obrigatório'),
-          description: Yup.string(),
-        })
-
-        setIsLoading(true)
-
-        console.log(data)
-
-        await schema.validate(data, {
-          abortEarly: false,
-        })
-
         if (editingServiceTypesId) {
           await api.put<ServiceType>(`/serviceTypes/${editingServiceTypesId}`, {
             ...data,
@@ -143,12 +147,9 @@ const MilServicesPage: React.FC = () => {
             title: 'Tipo de Serviço Atualizado',
             description: 'Os dados do tipo de serviço foram atualizados com sucesso!',
           })
-          await reloadDataAndResetPage()
         } else {
           await api.post('/serviceTypes', {
-            name: data.name,
-            description: data.description,
-            rank: data.rank,
+            ...data,
             created_at: new Date().toISOString(),
             update_at: new Date().toISOString(),
           })
@@ -157,23 +158,11 @@ const MilServicesPage: React.FC = () => {
             title: 'Tipo de Serviço Cadastrado',
             description: 'Novo tipo de serviço cadastrado com sucesso!',
           })
-          await reloadDataAndResetPage()
         }
-
         setEditingServiceTypesId(null)
-        setNewServiceTypeData({ name: '', description: '', rank: 'Selecione uma Opção' })
-        formRef.current?.reset()
+        reset()
+        await reloadDataAndResetPage()
       } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-          formRef.current?.setErrors(errors)
-          addToast({
-            type: 'error',
-            title: 'Erro de Validação',
-            description: 'Verifique os campos do formulário.',
-          })
-          return
-        }
         addToast({
           type: 'error',
           title: `Erro ao ${editingServiceTypesId ? 'atualizar' : 'cadastrar'} tipo de serviço`,
@@ -183,48 +172,31 @@ const MilServicesPage: React.FC = () => {
         setIsLoading(false)
       }
     },
-    [editingServiceTypesId, addToast, reloadDataAndResetPage]
+    [editingServiceTypesId, addToast, reloadDataAndResetPage, reset]
   )
 
   const handleSerchServiceType = useCallback(
-    async (data: searchService) => {
+    async (data: SearchServiceData) => {
       const { searchName } = data
-
-      if (!searchName) {
-        addToast({
-          type: 'info',
-          title: 'Campo de Busca Vazio',
-          description: 'Por favor, digite um nome para buscar.',
-        })
-        return
-      }
-
       setCurrentSearchTerm(searchName)
       await fetchServiceType(searchName)
-      formRefSearch.current?.reset()
     },
-    [addToast, fetchServiceType]
+    [fetchServiceType]
   )
 
-  const handleEditServiceType = useCallback((serviceType: ServiceType) => {
-    setEditingServiceTypesId(serviceType.id)
-
-    formRef.current?.setData({
-      name: serviceType.name,
-      description: serviceType.description,
-    })
-    setNewServiceTypeData({
-      name: serviceType.name,
-      description: serviceType.description,
-      rank: serviceType.rank,
-    })
-  }, [])
+  const handleEditServiceType = useCallback(
+    (serviceType: ServiceType) => {
+      setEditingServiceTypesId(serviceType.id)
+      reset(serviceType)
+    },
+    [reset]
+  )
 
   const handleListAllServiceTypes = useCallback(async () => {
     setCurrentSearchTerm('')
-    formRefSearch.current?.reset()
+    resetSearchForm()
     await fetchServiceType()
-  }, [fetchServiceType])
+  }, [fetchServiceType, resetSearchForm])
 
   const handleDeleteServiceType = useCallback(
     async (id: string) => {
@@ -233,7 +205,6 @@ const MilServicesPage: React.FC = () => {
       }
       setError(null)
       setIsLoading(true)
-
       try {
         await api.delete(`/serviceTypes/${id}`)
         addToast({
@@ -270,26 +241,25 @@ const MilServicesPage: React.FC = () => {
         {error && <p>{error}</p>}
         {isLoading && <p>Carregando...</p>}
         <h2>Buscar Serviço por Nome</h2>
-        <Form
-          ref={formRefSearch}
-          onSubmit={handleSerchServiceType}
-          initialData={undefined}
-          placeholder={undefined}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-        >
-          <Input
+        <form onSubmit={handleSearchSubmit(handleSerchServiceType)}>
+          <Controller
             name="searchName"
-            icon={FiUser}
-            type="text"
-            placeholder="Nome do Serviço para busca."
+            control={searchControl}
+            render={({ field }) => (
+              <Input
+                icon={FiUser}
+                type="text"
+                placeholder="Nome do Serviço para busca."
+                {...field}
+                error={searchErrors.searchName?.message}
+              />
+            )}
           />
           <Button type="submit">Buscar por Nome</Button>
-
           <Button onClick={handleListAllServiceTypes} disabled={isLoading} variant="info">
             Listar Todos os Serviços
           </Button>
-        </Form>
+        </form>
 
         {servicesTypesLoaded && (
           <>
@@ -298,7 +268,6 @@ const MilServicesPage: React.FC = () => {
                 ? `Serviços Encontrados (${allServicesType.length} total)`
                 : `Todos os Serviços (${allServicesType.length} total)`}
             </h3>
-
             {allServicesType.length > 0 ? (
               <div>
                 {displayedServicesTypes.map(serviceType => (
@@ -326,48 +295,70 @@ const MilServicesPage: React.FC = () => {
         )}
 
         <h2>{editingServiceTypesId ? 'Atualizar Serviço' : 'Cadastrar Novo Serviço'}</h2>
-        <Form
-          ref={formRef}
-          onSubmit={handleSubmitServiceType}
-          initialData={newServiceTypeData}
-          placeholder={undefined}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-        >
-          <Input name="name" icon={FiUser} placeholder="Nome do Serviço" />
-          <Input
+        <form onSubmit={handleSubmit(handleSubmitServiceType)}>
+          <Controller
+            name="name"
+            control={control}
+            render={({ field }) => (
+              <Input
+                icon={FiUser}
+                placeholder="Nome do Serviço"
+                {...field}
+                error={errors.name?.message}
+              />
+            )}
+          />
+          <Controller
             name="description"
-            icon={FiAlignJustify}
-            placeholder="Descrição do Serviço"
+            control={control}
+            render={({ field }) => (
+              <Input
+                icon={FiAlignJustify}
+                placeholder="Descrição do Serviço"
+                {...field}
+                error={errors.description?.message}
+              />
+            )}
           />
-          <Select
+          <Controller
             name="rank"
-            icon={FiBookmark}
-            options={[
-              { value: 'Sd', label: 'Sd' },
-              { value: 'Cb', label: 'Cb' },
-              { value: 'Serviço de Sgt', label: 'Serviço de Sgt' },
-              {
-                value: 'Serviço de Oficial Subalterno',
-                label: 'Serviço de Oficial Subalterno',
-              },
-              {
-                value: 'Serviço de Oficial Superior',
-                label: 'Serviço de Oficial Superior',
-              },
-            ]}
+            control={control}
+            render={({ field }) => (
+              <SelectSearch
+                icon={FiBookmark}
+                options={[
+                  { value: 'Sd', label: 'Sd' },
+                  { value: 'Cb', label: 'Cb' },
+                  { value: 'Serviço de Sgt', label: 'Serviço de Sgt' },
+                  {
+                    value: 'Serviço de Oficial Subalterno',
+                    label: 'Serviço de Oficial Subalterno',
+                  },
+                  {
+                    value: 'Serviço de Oficial Superior',
+                    label: 'Serviço de Oficial Superior',
+                  },
+                ]}
+                {...field}
+              />
+            )}
           />
-          <Button type="submit">{'Cadastrar Serviço'}</Button>
+
+          <Button type="submit" disabled={isLoading}>
+            {editingServiceTypesId ? 'Atualizar Serviço' : 'Cadastrar Serviço'}
+          </Button>
           <Button
             type="button"
             onClick={() => {
-              formRef.current?.reset()
+              setEditingServiceTypesId(null)
+              reset()
             }}
             variant="danger"
+            disabled={isLoading}
           >
             Cancelar Edição
           </Button>
-        </Form>
+        </form>
       </MainContent>
     </Layout>
   )

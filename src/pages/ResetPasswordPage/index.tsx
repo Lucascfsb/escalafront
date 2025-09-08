@@ -1,13 +1,12 @@
-import type { FormHandles } from '@unform/core'
-import { Form } from '@unform/web'
 import type React from 'react'
-import { useCallback, useRef } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { useCallback, useState } from 'react'
 import { FiLock } from 'react-icons/fi'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
 
 import { useToast } from '../../hooks/toast'
-import { getValidationErrors } from '../../utils/getValidationErrors'
 
 import logoImg from '../../assets/brasao.svg'
 
@@ -22,36 +21,42 @@ interface ResetPasswordFormData {
   password_confirmation: string
 }
 
+const schema = Yup.object().shape({
+  password: Yup.string().required('Senha obrigatória!'),
+  password_confirmation: Yup.string()
+    .oneOf([Yup.ref('password'), undefined], 'Confirmação incorreta')
+    .required('Confirmação de senha obrigatória!'),
+})
+
 const ResetPasswordPage: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
-
+  const [loading, setLoading] = useState(false)
   const { addToast } = useToast()
-
   const navigate = useNavigate()
   const location = useLocation()
 
-  const handleSubmit = useCallback(
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ResetPasswordFormData>({
+    resolver: yupResolver(schema),
+  })
+
+  const onSubmit = useCallback(
     async (data: ResetPasswordFormData) => {
       try {
-        formRef.current?.setErrors({})
-
-        const schema = Yup.object().shape({
-          password: Yup.string().required('Senha obrigatória!'),
-          password_confirmation: Yup.string().oneOf(
-            [Yup.ref('password'), undefined],
-            'Confirmação incorreta'
-          ),
-        })
-
-        await schema.validate(data, {
-          abortEarly: false,
-        })
+        setLoading(true)
 
         const { password, password_confirmation } = data
-        const token = location.search.replace('?token=', '')
+        const token = new URLSearchParams(location.search).get('token')
 
         if (!token) {
-          throw new Error()
+          addToast({
+            type: 'error',
+            title: 'Erro ao resetar senha',
+            description: 'Token de redefinição não encontrado.',
+          })
+          return
         }
 
         await api.post('/password/reset', {
@@ -60,55 +65,65 @@ const ResetPasswordPage: React.FC = () => {
           token,
         })
 
+        addToast({
+          type: 'success',
+          title: 'Senha redefinida!',
+          description: 'Sua senha foi alterada com sucesso. Você já pode fazer login!',
+        })
+
         navigate('/')
       } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-          formRef.current?.setErrors(errors)
-
-          return
-        }
-
         addToast({
           type: 'error',
           title: 'Erro ao resetar senha',
-          description: 'Occoreu um erro ao resetar sua senha, tente novamente.',
+          description: 'Ocorreu um erro ao resetar sua senha, verifique o token e tente novamente.',
         })
+      } finally {
+        setLoading(false)
       }
     },
-    [addToast, navigate, location.search]
+    [addToast, navigate, location.search],
   )
 
   return (
     <Container>
       <Content>
         <AnimationContainer>
-          <img src={logoImg} alt="Exército Brasilero" />
+          <img src={logoImg} alt="Exército Brasileiro" />
 
-          <Form
-            ref={formRef}
-            onSubmit={handleSubmit}
-            initialData={{ role: '' }}
-            placeholder={undefined}
-            onPointerEnterCapture={undefined}
-            onPointerLeaveCapture={undefined}
-          >
+          <form onSubmit={handleSubmit(onSubmit)}>
             <h1>Resetar senha</h1>
-            <Input
+            <Controller
               name="password"
-              icon={FiLock}
-              type="password"
-              placeholder="Nova senha"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  icon={FiLock}
+                  type="password"
+                  placeholder="Nova senha"
+                  {...field}
+                  error={errors.password?.message}
+                />
+              )}
             />
-            <Input
+            <Controller
               name="password_confirmation"
-              icon={FiLock}
-              type="password"
-              placeholder="Confirmação da senha"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  icon={FiLock}
+                  type="password"
+                  placeholder="Confirmação da senha"
+                  {...field}
+                  error={errors.password_confirmation?.message}
+                />
+              )}
             />
 
-            <Button type="submit">Altera senha</Button>
-          </Form>
+            <Button type="submit" loading={loading}>
+              Alterar senha
+            </Button>
+          </form>
         </AnimationContainer>
       </Content>
       <Background />

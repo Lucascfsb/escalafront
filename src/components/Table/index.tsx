@@ -1,7 +1,9 @@
 import { isSameDay, parseISO } from 'date-fns'
 import type React from 'react'
 
-import {SelectSearch} from '../Select/SelectSearch'
+import {SelectSearch} from '../SelectSearch'
+import {FiUser } from 'react-icons/fi'
+
 
 import {
   SelectInput,
@@ -117,6 +119,7 @@ const Table: React.FC<TableProps> = ({
                         <span>{militaryName}</span>
                       ) : (
                         <SelectSearch
+                          icon={FiUser}
                           options={militaryOptions}
                           value={currentEntry?.military_id || null}
                           onChange={(militaryId: string | null) =>

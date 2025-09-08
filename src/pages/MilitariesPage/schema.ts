@@ -4,7 +4,7 @@ import * as Yup from 'yup'
 
 export const militaresPageSchema = Yup.object().shape({
   name: Yup.string().required('Nome é obrigatório'),
-  rank: Yup.string().required('Patente é obrigatória'),
+  rank: Yup.string().required('Posto/Graduação é obrigatória'),
   qualification: Yup.string().required('Qualificação é obrigatória'),
   date_of_entry: Yup.string()
     .required('Data de entrada é obrigatória')

@@ -1,16 +1,5 @@
 import { shade } from 'polished'
-import styled, { keyframes } from 'styled-components'
-
-const appearFromRight = keyframes`
-  from{
-    opacity: 0;
-    transform: translate(150px);
-  }
-  to{
-    opacity: 1;
-    transform: translateY(0);
-  }
-`
+import styled from 'styled-components'
 
 export const MainContent = styled.div`
   flex: 1;
@@ -20,7 +9,6 @@ export const MainContent = styled.div`
   border-radius: 8px;
   margin: 12px;
 
-  animation: ${appearFromRight} 1s;
 
   h2 {
     color: #f0c14b;

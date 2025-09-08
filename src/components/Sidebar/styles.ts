@@ -1,16 +1,5 @@
 import { shade } from 'polished'
-import styled, { keyframes } from 'styled-components'
-
-const appearFromleft = keyframes`
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-`
+import styled from 'styled-components'
 
 export const Container = styled.nav`
   width: 260px;
@@ -43,8 +32,6 @@ export const Container = styled.nav`
     list-style: none;
     padding: 0;
     width: 100%;
-
-    animation: ${appearFromleft} 1s;
 
     li {
       padding: 15px 20px;

@@ -13,8 +13,8 @@ export const SelectStyles = styled.div`
   }
 
   && .custom-select__control--is-focused {
-    border-color: #007bff;
-    box-shadow: 0 0 0 1px #007bff;
+    border-color: #4CAF50;
+    background-color: #fff;
   }
 
   && .custom-select__value-container {
@@ -41,7 +41,7 @@ export const SelectStyles = styled.div`
   }
 
   && .custom-select__option--is-selected {
-    background-color: #007bff;
+    background-color: #4CAF50;
     color: #fff;
   }
 

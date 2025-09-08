@@ -1,49 +1,29 @@
-import type { FormHandles } from '@unform/core'
-import { Form } from '@unform/web'
 import axios from 'axios'
-import { format, parseISO } from 'date-fns'
 import type React from 'react'
-import { ValidationError } from 'yup'
-import * as Yup from 'yup'
-
-import { useCallback, useMemo, useRef, useState } from 'react'
-import { FiAward, FiBookmark, FiCalendar, FiUser } from 'react-icons/fi'
-
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useToast } from '../../hooks/toast'
 import { api } from '../../services/apiClient'
-import { getValidationErrors } from '../../utils/getValidationErrors'
 
-import { Button } from '../../components/Button'
-import { MilitaryDisplay } from '../../components/InfoDisplay/Display/MilitaryDisplay'
-import { Input } from '../../components/Input'
 import { Layout } from '../../components/Layout'
-import { Pagination } from '../../components/Pagination'
-import { Select } from '../../components/Select'
+import { MilitaryForm } from '../../components/MilitaryForm/MilitaryForm'
+import { MilitaryTable } from '../../components/MilitaryGrid/MilitaryGrid'
+import { MilitarySearch } from '../../components/MilitarySearch/MilitarySearch'
 
-import { militaresPageSchema } from './schema'
+import { format, parseISO } from 'date-fns'
 import { MainContent } from './styles'
-import type { Military, MilitaryFormData, SearchFormData } from './types'
+import type { Military, MilitaryFormData } from './types'
 
 export const MilitariesPage: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
-  const formRefSearch = useRef<FormHandles>(null)
   const { addToast } = useToast()
 
-  const [newMilitaryData, setNewMilitaryData] = useState<MilitaryFormData>({
-    name: '',
-    rank: '',
-    qualification: '',
-    date_of_entry: '',
-  })
   const [allMilitaries, setAllMilitaries] = useState<Military[]>([])
-  const [currentSearchTerm, setCurrentSearchTerm] = useState<string>('')
+  const [searchTerm, setSearchTerm] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [editingMilitaryId, setEditingMilitaryId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [militariesLoaded, setMilitariesLoaded] = useState(false)
+  const [editingMilitaryId, setEditingMilitaryId] = useState<string | null>(null)
 
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 5
+  const itemsPerPage = 6
 
   const totalPages = useMemo(() => {
     return Math.ceil(allMilitaries.length / itemsPerPage)
@@ -60,15 +40,9 @@ export const MilitariesPage: React.FC = () => {
       setError(null)
       setIsLoading(true)
       try {
-        let url = '/militaries'
-        if (name) {
-          url = `/militaries?name=${encodeURIComponent(name)}`
-        }
-
+        const url = name ? `/militaries?name=${encodeURIComponent(name)}` : '/militaries'
         const response = await api.get<Military[]>(url)
-
         setAllMilitaries(response.data)
-        setMilitariesLoaded(true)
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
           setError(`Nenhum militar encontrado ${name ? `com o nome "${name}"` : ''}.`)
@@ -86,7 +60,6 @@ export const MilitariesPage: React.FC = () => {
           })
         }
         setAllMilitaries([])
-        setMilitariesLoaded(false)
       } finally {
         setIsLoading(false)
       }
@@ -94,22 +67,20 @@ export const MilitariesPage: React.FC = () => {
     [addToast]
   )
 
+  useEffect(() => {
+    fetchMilitaries(searchTerm || undefined)
+  }, [fetchMilitaries, searchTerm])
+
   const reloadDataAndResetPage = useCallback(async () => {
     setCurrentPage(1)
-    await fetchMilitaries(currentSearchTerm || undefined)
-  }, [currentSearchTerm, fetchMilitaries])
+    await fetchMilitaries(searchTerm || undefined)
+  }, [searchTerm, fetchMilitaries])
 
   const handleSubmitMilitary = useCallback(
     async (data: MilitaryFormData) => {
+      setIsLoading(true)
+
       try {
-        formRef.current?.setErrors({})
-
-        await militaresPageSchema.validate(data, {
-          abortEarly: false,
-        })
-
-        setIsLoading(true)
-
         const dataToSave = {
           name: data.name,
           rank: data.rank,
@@ -118,44 +89,24 @@ export const MilitariesPage: React.FC = () => {
         }
 
         if (editingMilitaryId) {
-          await api.put<Military>(`/militaries/${editingMilitaryId}`, {
-            ...dataToSave,
-            update_at: new Date().toISOString(),
-          })
+          await api.put<Military>(`/militaries/${editingMilitaryId}`, dataToSave)
           addToast({
             type: 'success',
             title: 'Militar Atualizado',
             description: 'Os dados do militar foram atualizados com sucesso!',
           })
-          await reloadDataAndResetPage()
+          setEditingMilitaryId(null)
         } else {
-          await api.post('/militaries', {
-            ...dataToSave,
-            created_at: new Date().toISOString(),
-            update_at: new Date().toISOString(),
-          })
+          await api.post('/militaries', dataToSave)
           addToast({
             type: 'success',
             title: 'Militar Cadastrado',
             description: 'Novo militar cadastrado com sucesso!',
           })
-          await reloadDataAndResetPage()
         }
 
-        setEditingMilitaryId(null)
-        setNewMilitaryData({ name: '', rank: '', qualification: '', date_of_entry: '' })
-        formRef.current?.reset()
+        await reloadDataAndResetPage()
       } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-          formRef.current?.setErrors(errors)
-          addToast({
-            type: 'error',
-            title: 'Erro de Validação',
-            description: 'Verifique os campos do formulário.',
-          })
-          return
-        }
         addToast({
           type: 'error',
           title: `Erro ao ${editingMilitaryId ? 'atualizar' : 'cadastrar'} militar`,
@@ -168,49 +119,8 @@ export const MilitariesPage: React.FC = () => {
     [editingMilitaryId, addToast, reloadDataAndResetPage]
   )
 
-  const handleSearchMilitary = useCallback(
-    async (data: SearchFormData) => {
-      const searchNameValue = data.searchName.trim()
-
-      if (!searchNameValue) {
-        addToast({
-          type: 'info',
-          title: 'Campo de Busca Vazio',
-          description: 'Por favor, digite um nome para buscar.',
-        })
-        return
-      }
-
-      setCurrentSearchTerm(searchNameValue)
-      await fetchMilitaries(searchNameValue)
-      formRefSearch.current?.reset()
-    },
-    [addToast, fetchMilitaries]
-  )
-
-  const handleListAllMilitaries = useCallback(async () => {
-    setCurrentSearchTerm('')
-    formRefSearch.current?.reset()
-    await fetchMilitaries()
-  }, [fetchMilitaries])
-
   const handleEditMilitary = useCallback((military: Military) => {
     setEditingMilitaryId(military.id)
-
-    const dateForInput = format(parseISO(military.date_of_entry), 'yyyy-MM-dd')
-
-    formRef.current?.setData({
-      name: military.name,
-      rank: military.rank,
-      qualification: military.qualification,
-      date_of_entry: dateForInput,
-    })
-    setNewMilitaryData({
-      name: military.name,
-      rank: military.rank,
-      qualification: military.qualification,
-      date_of_entry: dateForInput,
-    })
   }, [])
 
   const handleDeleteMilitary = useCallback(
@@ -243,6 +153,10 @@ export const MilitariesPage: React.FC = () => {
     [addToast, reloadDataAndResetPage]
   )
 
+  const handleCancelEdit = useCallback(() => {
+    setEditingMilitaryId(null)
+  }, [])
+
   const handlePageChange = useCallback(
     (page: number) => {
       if (page < 1 || page > totalPages || page === currentPage) return
@@ -251,139 +165,47 @@ export const MilitariesPage: React.FC = () => {
     [currentPage, totalPages]
   )
 
+  const initialData = useMemo(() => {
+    if (!editingMilitaryId) {
+      return undefined
+    }
+    const militaryToEdit = allMilitaries.find(m => m.id === editingMilitaryId)
+    if (militaryToEdit) {
+      return {
+        ...militaryToEdit,
+        date_of_entry: format(parseISO(militaryToEdit.date_of_entry), 'yyyy-MM-dd'),
+      } as MilitaryFormData
+    }
+    return undefined
+  }, [allMilitaries, editingMilitaryId])
+
   return (
     <Layout>
       <MainContent>
         {error && <p>{error}</p>}
         {isLoading && <p>Carregando...</p>}
 
-        <h2>Buscar Militar por Nome</h2>
-        <Form
-          ref={formRefSearch}
-          onSubmit={handleSearchMilitary}
-          placeholder={undefined}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-        >
-          <Input
-            name="searchName"
-            icon={FiUser}
-            type="text"
-            placeholder="Nome do Militar para busca."
-          />
-          <Button type="submit" disabled={isLoading}>
-            Buscar por Nome
-          </Button>
+        <h2>Gerenciar Militares</h2>
 
-          <Button onClick={handleListAllMilitaries} disabled={isLoading} variant="info">
-            Listar Todos os Militares
-          </Button>
-        </Form>
+        <MilitarySearch searchTerm={searchTerm} onSearch={setSearchTerm} />
 
-        {militariesLoaded && (
-          <>
-            <h3>
-              {currentSearchTerm
-                ? `Militares Encontrados (${allMilitaries.length} total)`
-                : `Todos os Militares (${allMilitaries.length} total)`}
-            </h3>
-
-            {allMilitaries.length > 0 ? (
-              <div>
-                {displayedMilitaries.map(military => (
-                  <MilitaryDisplay
-                    key={military.id}
-                    military={military}
-                    onEdit={handleEditMilitary}
-                    onDelete={handleDeleteMilitary}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p>Nenhum militar encontrado</p>
-            )}
-
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-                isLoading={isLoading}
-              />
-            )}
-          </>
-        )}
+        <MilitaryTable
+          militaries={displayedMilitaries}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          onEdit={handleEditMilitary}
+          onDelete={handleDeleteMilitary}
+          isLoading={isLoading}
+        />
 
         <h2>{editingMilitaryId ? 'Atualizar Militar' : 'Cadastrar Novo Militar'}</h2>
-        <Form
-          ref={formRef}
+        <MilitaryForm
           onSubmit={handleSubmitMilitary}
-          initialData={newMilitaryData}
-          placeholder={undefined}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-        >
-          <Input name="name" icon={FiUser} placeholder="Nome de Guerra" />
-          <Select
-            name="rank"
-            icon={FiBookmark}
-            options={[
-              { value: 'Sd', label: 'Sd' },
-              { value: 'Cb', label: 'Cb' },
-              { value: '3° Sgt', label: '3° Sgt' },
-              { value: '2° Sgt', label: '2° Sgt' },
-              { value: '1° Sgt', label: '1° Sgt' },
-              { value: 'Asp', label: 'Asp' },
-              { value: '2° Ten', label: '2° Ten' },
-              { value: '1° Ten', label: '1° Ten' },
-              { value: 'Cap', label: 'Cap' },
-              { value: 'Maj', label: 'Maj' },
-              { value: 'Ten-Cel', label: 'Ten-Cel' },
-              { value: 'Cel', label: 'Cel' },
-            ]}
-          />
-          <Select
-            name="qualification"
-            icon={FiAward}
-            options={[
-              { value: 'Formação', label: 'Formação' },
-              { value: 'Especialização', label: 'Especialização' },
-              { value: 'Aperfeiçoamento', label: 'Aperfeiçoamento' },
-              { value: 'Altos Estudos I', label: 'Altos Estudos I' },
-              { value: 'Altos Estudos II', label: 'Altos Estudos II' },
-            ]}
-          />
-
-          <Input
-            name="date_of_entry"
-            icon={FiCalendar}
-            type="text"
-            placeholder="DD/MM/AAAA"
-            mask="99/99/9999"
-          />
-
-          <Button type="submit">
-            {editingMilitaryId ? 'Salvar Alterações' : 'Cadastrar Militar'}
-          </Button>
-          {editingMilitaryId && (
-            <Button
-              type="button"
-              onClick={() => {
-                setEditingMilitaryId(null)
-                setNewMilitaryData({
-                  name: '',
-                  rank: '',
-                  qualification: '',
-                  date_of_entry: '',
-                })
-                formRef.current?.reset()
-              }}
-              variant="danger"
-            >
-              Cancelar Edição
-            </Button>
-          )}
-        </Form>
+          editingMilitaryId={editingMilitaryId}
+          initialData={initialData}
+          onCancelEdit={handleCancelEdit}
+        />
       </MainContent>
     </Layout>
   )

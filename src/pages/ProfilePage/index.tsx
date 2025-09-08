@@ -1,6 +1,7 @@
-import type { FormHandles } from '@unform/core'
-import { Form } from '@unform/web'
+import { yupResolver } from '@hookform/resolvers/yup'
 import type React from 'react'
+import { useCallback, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import {
   FiArrowLeft,
   FiCamera,
@@ -15,73 +16,61 @@ import { api } from '../../services/apiClient'
 
 import { useToast } from '../../hooks/toast'
 
-import { getValidationErrors } from '../../utils/getValidationErrors'
-
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
-import { Select } from '../../components/Select'
+import { SelectSearch } from '../../components/SelectSearch'
+import { ProfilePageSchema } from './schema'
 
-import { useCallback, useRef } from 'react'
 import type { ChangeEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth'
 import { AvataInput, Container, Content } from './styles'
 
 interface ProfileFormData {
   username: string
   email: string
-  password: string
   role: string
-  oldPassword?: string
-  passwordConfirmation?: string
+  oldPassword: string
+  password: string
+  passwordConfirmation: string
 }
 
 const ProfilePage: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
   const { addToast } = useToast()
   const navigate = useNavigate()
   const { user, updateUser } = useAuth()
 
-  const handleSubmit = useCallback(
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ProfileFormData>({
+    resolver: yupResolver(ProfilePageSchema),
+    defaultValues: {
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+  })
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const onSubmit = useCallback(
     async (data: ProfileFormData) => {
       try {
-        formRef.current?.setErrors({})
+        setIsSubmitting(true)
+        const { username, email, oldPassword, password, role } = data
 
-        const schema = Yup.object().shape({
-          username: Yup.string().required('Nome de Usuário obrigatório'),
-          email: Yup.string()
-            .required('E-mail obrigatório')
-            .email('Digite um E-mail válido'),
-          oldPassword: Yup.string(),
-          password: Yup.string().test(
-            'password-required',
-            'Nova senha obrigatória',
-            function (value) {
-              return !this.parent.oldPassword || !!value
-            }
-          ),
-          passwordConfirmation: Yup.string()
-            .test('password-match', 'Confirmação incorreta', function (value) {
-              return !this.parent.password || value === this.parent.password
-            })
-            .test(
-              'confirmation-required',
-              'Confirmação de senha obrigatória',
-              function (value) {
-                return !this.parent.password || !!value
-              }
-            ),
-          role: Yup.string().required('Selecione seu nível de acesso'),
-        })
+        const updatedProfileData = {
+          username,
+          email,
+          role,
+          oldPassword: oldPassword || undefined,
+          password: password || undefined,
+        }
 
-        await schema.validate(data, {
-          abortEarly: false,
-        })
-
-        await api.put('/profile', data).then(response => {
-          updateUser(response.data)
-        })
+        const response = await api.put('/profile', updatedProfileData)
+        updateUser(response.data)
 
         navigate('/militaries')
 
@@ -91,18 +80,13 @@ const ProfilePage: React.FC = () => {
           description: 'Suas informações foram atualizadas!',
         })
       } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-          formRef.current?.setErrors(errors)
-
-          return
-        }
-
         addToast({
           type: 'error',
           title: 'Erro na atualização',
-          description: 'Occoreu um erro ao atualizaro perfil, tente novamente!',
+          description: 'Ocorreu um erro ao atualizar o perfil, tente novamente!',
         })
+      } finally {
+        setIsSubmitting(false)
       }
     },
     [addToast, navigate, updateUser]
@@ -114,14 +98,11 @@ const ProfilePage: React.FC = () => {
         if (!e.target.files || e.target.files.length === 0) {
           return
         }
-
         const file = e.target.files[0]
-
         const data = new FormData()
         data.append('avatar', file)
 
         const response = await api.patch('/users/avatar', data)
-
         updateUser(response.data)
 
         addToast({
@@ -148,19 +129,8 @@ const ProfilePage: React.FC = () => {
           </Link>
         </div>
       </header>
-
       <Content>
-        <Form
-          ref={formRef}
-          onSubmit={handleSubmit}
-          placeholder={undefined}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-          initialData={{
-            username: user.username,
-            email: user.email,
-          }}
-        >
+        <form onSubmit={handleSubmit(onSubmit)}>
           <AvataInput>
             <img src={user.avatar_url} alt={user.username} />
             <label htmlFor="avatar">
@@ -171,34 +141,93 @@ const ProfilePage: React.FC = () => {
 
           <h1>Meu perfil</h1>
 
-          <Input name="username" icon={FiUser} placeholder="Nome de Usuário" />
-          <Input name="email" icon={FiMail} type="email" placeholder="Email" />
-          <Input
-            $containerStyle={{ marginTop: 24 }}
-            name="oldPassword"
-            icon={FiLock}
-            type="password"
-            placeholder="Senha atual"
+          <Controller
+            name="username"
+            control={control}
+            render={({ field }) => (
+              <Input
+                icon={FiUser}
+                placeholder="Nome de Usuário"
+                {...field}
+                error={errors.username?.message}
+              />
+            )}
           />
-          <Input name="password" icon={FiLock} type="password" placeholder="Nova senha" />
-          <Input
-            name="passwordConfirmation"
-            icon={FiLock}
-            type="password"
-            placeholder="Confirmar senha"
-          />
-          <Select
-            name="role"
-            icon={FiChevronDown}
-            options={[
-              { value: 'admin', label: 'Administrador' },
-              { value: 'usuário', label: 'Usuário' },
-              { value: 'consulta', label: 'Consulta' },
-            ]}
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <Input
+                icon={FiMail}
+                type="email"
+                placeholder="Email"
+                {...field}
+                error={errors.email?.message}
+              />
+            )}
           />
 
-          <Button type="submit">Confirmar mudanças</Button>
-        </Form>
+          <Controller
+            name="oldPassword"
+            control={control}
+            render={({ field }) => (
+              <Input
+                $containerStyle={{ marginTop: 24 }}
+                icon={FiLock}
+                type="password"
+                placeholder="Senha atual"
+                {...field}
+                error={errors.oldPassword?.message}
+              />
+            )}
+          />
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <Input
+                icon={FiLock}
+                type="password"
+                placeholder="Nova senha"
+                {...field}
+                error={errors.password?.message}
+              />
+            )}
+          />
+          <Controller
+            name="passwordConfirmation"
+            control={control}
+            render={({ field }) => (
+              <Input
+                icon={FiLock}
+                type="password"
+                placeholder="Confirmar senha"
+                {...field}
+                error={errors.passwordConfirmation?.message}
+              />
+            )}
+          />
+
+          <Controller
+            name="role"
+            control={control}
+            render={({ field }) => (
+              <SelectSearch
+                icon={FiChevronDown}
+                options={[
+                  { value: 'admin', label: 'Administrador' },
+                  { value: 'usuario', label: 'Usuário' },
+                  { value: 'consulta', label: 'Consulta' },
+                ]}
+                {...field}
+              />
+            )}
+          />
+
+          <Button type="submit" loading={isSubmitting}>
+            Confirmar mudanças
+          </Button>
+        </form>
       </Content>
     </Container>
   )
