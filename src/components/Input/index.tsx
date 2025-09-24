@@ -4,17 +4,30 @@ import { forwardRef, useCallback, useState } from 'react'
 import type { IconBaseProps } from 'react-icons'
 import { FiAlertCircle } from 'react-icons/fi'
 
-import { Container, ErrorContainer } from './styles'
+import { Container, ErrorContainer, RightIconContainer } from './styles'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string
   $containerStyle?: object
   icon?: React.ComponentType<IconBaseProps>
   error?: string
+  rightIcon?: React.ComponentType<IconBaseProps>
+
+  onRightIconClick?: () => void
 }
 
 const InputBase: React.ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
-  { icon: Icon, name, $containerStyle = {}, error, onFocus, onBlur, ...rest },
+  {
+    icon: Icon,
+    name,
+    $containerStyle = {},
+    error,
+    onFocus,
+    onBlur,
+    rightIcon: RightIcon,
+    onRightIconClick,
+    ...rest
+  },
   ref
 ) => {
   const [isFocused, setIsFocused] = useState(false)
@@ -51,6 +64,11 @@ const InputBase: React.ForwardRefRenderFunction<HTMLInputElement, InputProps> = 
         <ErrorContainer title={error}>
           <FiAlertCircle color="#c53030" size={20} />
         </ErrorContainer>
+      )}
+      {RightIcon && onRightIconClick && (
+        <RightIconContainer onClick={onRightIconClick}>
+          <RightIcon size={20} />
+        </RightIconContainer>
       )}
     </Container>
   )

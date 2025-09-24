@@ -1,8 +1,9 @@
 import type React from 'react'
-import Select, { type SingleValue } from 'react-select'
-import { SelectStyles } from './styles'
 import type { IconBaseProps } from 'react-icons'
-
+import { FiAlertCircle } from 'react-icons/fi'
+import Select, { type SingleValue } from 'react-select'
+import { ErrorContainer } from '../Input/styles'
+import { IconContainer, SelectContainer, SelectStyles } from './styles'
 
 interface OptionType {
   value: string
@@ -11,36 +12,48 @@ interface OptionType {
 
 interface SearchableSelectProps {
   options: OptionType[]
-  icon: React.ComponentType<IconBaseProps>
-  value: string | null
-  onChange: (value: string | null) => void
+  icon?: React.ComponentType<IconBaseProps>
+  value: OptionType | null
+  onChange: (value: SingleValue<OptionType>) => void
   placeholder?: string
   isDisabled?: boolean
+  error?: string
 }
 
 const SelectSearch: React.FC<SearchableSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = '(Nenhum)',
+  placeholder = '(Select an option)',
   isDisabled,
+  icon: Icon,
+  error,
 }) => {
-  const selectedOption: OptionType | null =
-    options.find(option => option.value === value) ?? null
-
   return (
-    <SelectStyles>
-      <Select<OptionType, false>
-        options={options}
-        value={selectedOption}
-        onChange={(option: SingleValue<OptionType>) => onChange(option?.value ?? null)}
-        placeholder={placeholder}
-        isDisabled={isDisabled}
-        isClearable
-        isSearchable
-        classNamePrefix="custom-select"
-      />
-    </SelectStyles>
+    <SelectContainer $isErrored={!!error}>
+      {Icon && (
+        <IconContainer>
+          <Icon size={20} />
+        </IconContainer>
+      )}
+      <SelectStyles>
+        <Select<OptionType, false>
+          options={options}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          isDisabled={isDisabled}
+          isClearable
+          isSearchable
+          classNamePrefix="custom-select"
+        />
+      </SelectStyles>
+      {error && (
+        <ErrorContainer title={error}>
+          <FiAlertCircle color="#c53030" size={20} />
+        </ErrorContainer>
+      )}
+    </SelectContainer>
   )
 }
 

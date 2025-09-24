@@ -1,18 +1,16 @@
+import { FiPlus } from 'react-icons/fi'
 import type { Service } from '../../../@types/types'
 import { InfoDisplay } from '../index'
 
 interface ServiceDisplayProps {
   service: Service
-  onEdit: (service: Service) => void
-  onDelete: (id: string) => void
 }
 
-const ServiceDisplay: React.FC<ServiceDisplayProps> = ({ service, onEdit, onDelete }) => (
+const ServiceDisplay: React.FC<ServiceDisplayProps> = ({ service }) => (
   <InfoDisplay<Service>
     item={service}
-    onEdit={onEdit}
-    onDelete={onDelete}
     itemType="serviceType"
+    icon={FiPlus}
     fields={[
       { label: 'Nome', value: service.name },
       { label: 'Descrição', value: service.description },

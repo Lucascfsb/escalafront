@@ -8,22 +8,12 @@ import { TableContainer } from './styled'
 
 interface MilitaryTableProps {
   militaries: Military[]
-  currentPage: number
-  totalPages: number
-  onPageChange: (page: number) => void
-  onEdit: (military: Military) => void
-  onDelete: (id: string) => Promise<void>
-  isLoading: boolean
+  onIconClick: (military: Military) => void
 }
 
 export const MilitaryTable: React.FC<MilitaryTableProps> = ({
   militaries,
-  currentPage,
-  totalPages,
-  onPageChange,
-  onEdit,
-  onDelete,
-  isLoading,
+  onIconClick,
 }) => {
   return (
     <TableContainer>
@@ -32,20 +22,11 @@ export const MilitaryTable: React.FC<MilitaryTableProps> = ({
           <MilitaryDisplay
             key={military.id}
             military={military}
-            onEdit={onEdit}
-            onDelete={onDelete}
+            onIconClick={() => onIconClick(military)}
           />
         ))
       ) : (
         <p>Nenhum militar encontrado.</p>
-      )}
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-          isLoading={isLoading}
-        />
       )}
     </TableContainer>
   )

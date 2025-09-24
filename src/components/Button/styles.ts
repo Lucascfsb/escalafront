@@ -19,11 +19,11 @@ background: ${props => {
   color: ${props => {
     switch (props.variant) {
       case 'danger':
-        return '#fff' // Explicitamente branco para 'danger'
+        return '#fff'
       case 'info':
-        return '#fff' // Explicitamente branco para 'info'
+        return '#fff'
       default:
-        return '#312e38' // Cor escura para 'primary'
+        return '#312e38'
     }
   }};
   

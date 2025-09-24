@@ -1,11 +1,22 @@
 import { isValid, parse } from 'date-fns'
-
 import * as Yup from 'yup'
 
 export const militaresPageSchema = Yup.object().shape({
-  name: Yup.string().required('Nome é obrigatório'),
-  rank: Yup.string().required('Posto/Graduação é obrigatória'),
-  qualification: Yup.string().required('Qualificação é obrigatória'),
+  name: Yup.string().required('Nome é obrigatório.'),
+  rank: Yup.object()
+    .shape({
+      value: Yup.string().required('Posto/Graduação é obrigatória'),
+      label: Yup.string().required(),
+    })
+    .nullable(isValid)
+    .required('Posto/Graduação é obrigatória'),
+  qualification: Yup.object()
+    .shape({
+      value: Yup.string().required('Qualificação é obrigatória'),
+      label: Yup.string().required(),
+    })
+    .nullable(isValid)
+    .required('Qualificação é obrigatória'),
   date_of_entry: Yup.string()
     .required('Data de entrada é obrigatória')
     .matches(

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 export const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 20px;
   gap: 10px;
 
@@ -28,10 +29,9 @@ export const PaginationContainer = styled.div`
     }
   }
 
-  
   span {
     color: #f4ede8;
-    align-self: center; 
     font-weight: bold;
+    margin-top: 12px;
   }
 `

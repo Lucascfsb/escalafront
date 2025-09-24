@@ -1,5 +1,4 @@
 import type React from 'react'
-import {Button} from '../Button'
 import { Container } from './styles'
 
 interface BaseItem {
@@ -11,21 +10,21 @@ interface BaseItem {
 
 interface InfoDisplayProps<T extends BaseItem> {
   item: T
-  onEdit: (item: T) => void
-  onDelete: (id: string) => void
   fields: Array<{
     label: string
     value: string | React.ReactNode
   }>
   itemType?: string
+  icon?: React.ComponentType
+  onIconClick?: () => void
 }
 
 export function InfoDisplay<T extends BaseItem>({
   item,
-  onEdit,
-  onDelete,
   fields,
   itemType = 'item',
+  icon: Icon,
+  onIconClick,
 }: InfoDisplayProps<T>) {
   return (
     <Container data-type={itemType}>
@@ -38,11 +37,11 @@ export function InfoDisplay<T extends BaseItem>({
           </p>
         ))}
       </div>
-
-      <div className="button-group">
-        <Button onClick={() => onEdit(item)}>Editar</Button>
-        <Button onClick={() => onDelete(item.id)}>Deletar</Button>
-      </div>
+      {Icon && onIconClick && (
+        <button onClick={onIconClick} className="info-icon-button" type="button">
+          <Icon />
+        </button>
+      )}
     </Container>
   )
 }

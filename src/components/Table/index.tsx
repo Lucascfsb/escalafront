@@ -1,9 +1,8 @@
 import { isSameDay, parseISO } from 'date-fns'
 import type React from 'react'
 
-import {SelectSearch} from '../SelectSearch'
-import {FiUser } from 'react-icons/fi'
-
+import { FiUser } from 'react-icons/fi'
+import { SelectSearch } from '../SelectSearch'
 
 import {
   SelectInput,
@@ -18,6 +17,12 @@ export interface ServiceType {
   name: string
   description?: string
 }
+
+interface OptionType {
+  value: string
+  label: string
+}
+
 export interface ServiceRendered {
   id: string
   military_id: string | null
@@ -121,12 +126,19 @@ const Table: React.FC<TableProps> = ({
                         <SelectSearch
                           icon={FiUser}
                           options={militaryOptions}
-                          value={currentEntry?.military_id || null}
-                          onChange={(militaryId: string | null) =>
+                          value={
+                            currentEntry?.military
+                              ? {
+                                  value: currentEntry.military.id,
+                                  label: `${currentEntry.military.rank} ${currentEntry.military.name}`,
+                                }
+                              : null
+                          }
+                          onChange={(option: OptionType | null) =>
                             handleAssignMilitary(
                               serviceType.id,
                               day,
-                              militaryId,
+                              option?.value ?? null,
                               currentEntry
                             )
                           }

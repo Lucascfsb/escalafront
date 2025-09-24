@@ -6,11 +6,24 @@ import { Controller, useForm } from 'react-hook-form'
 import { FiAward, FiBookmark, FiCalendar, FiUser } from 'react-icons/fi'
 
 import { useToast } from '../../hooks/toast'
-import { militaresPageSchema } from '../../pages/MilitariesPage/schema'
 import type { MilitaryFormData } from '../../pages/MilitariesPage/types'
 import { Button } from '../Button/index'
 import { Input } from '../Input/index'
 import { SelectSearch } from '../SelectSearch'
+import { militaresPageSchema } from './schema'
+
+export type FormInput = {
+  name: string
+  rank: {
+    value: string
+    label: string
+  }
+  qualification: {
+    value: string
+    label: string
+  }
+  date_of_entry: string
+}
 
 interface MilitaryFormProps {
   editingMilitaryId: string | null
@@ -27,35 +40,49 @@ export const MilitaryForm: React.FC<MilitaryFormProps> = ({
 }) => {
   const { addToast } = useToast()
 
+  const defaultValues = initialData
+    ? {
+        name: initialData.name,
+        rank: { value: initialData.rank, label: initialData.rank },
+        qualification: {
+          value: initialData.qualification,
+          label: initialData.qualification,
+        },
+        date_of_entry: initialData.date_of_entry
+          ? format(parseISO(initialData.date_of_entry), 'yyyy-MM-dd')
+          : '',
+      }
+    : {
+        name: '',
+        rank: { value: '', label: 'Posto/Graduação' },
+        qualification: { value: '', label: 'Qualificação' },
+        date_of_entry: '',
+      }
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
     control,
-  } = useForm<MilitaryFormData>({
+    setValue,
+  } = useForm<FormInput>({
     resolver: yupResolver(militaresPageSchema),
+    defaultValues,
   })
 
-  useEffect(() => {
-    if (initialData) {
-      const dataForInput = initialData.date_of_entry
-        ? format(parseISO(initialData.date_of_entry), 'yyyy-MM-dd')
-        : ''
-
-      reset({
-        ...initialData,
-        date_of_entry: dataForInput,
-      })
-    } else {
-      reset()
-    }
-  }, [initialData, reset])
-
   const handleFormSubmit = useCallback(
-    async (data: MilitaryFormData) => {
+    async (data: FormInput) => {
+      const apiData: MilitaryFormData = {
+        ...data,
+        rank: data.rank.value,
+        qualification: data.qualification.value,
+      }
       try {
-        await onSubmit(data)
+        await onSubmit(apiData)
+        if (!editingMilitaryId) {
+          reset(defaultValues)
+        }
       } catch (err) {
         addToast({
           type: 'error',
@@ -64,16 +91,39 @@ export const MilitaryForm: React.FC<MilitaryFormProps> = ({
         })
       }
     },
-    [onSubmit, editingMilitaryId, addToast]
+    [onSubmit, editingMilitaryId, addToast, reset, defaultValues]
   )
+
+  useEffect(() => {
+    if (initialData) {
+      setValue('name', initialData.name)
+      setValue('rank', { value: initialData.rank, label: initialData.rank })
+      setValue('qualification', {
+        value: initialData.qualification,
+        label: initialData.qualification,
+      })
+      setValue(
+        'date_of_entry',
+        initialData.date_of_entry
+          ? format(parseISO(initialData.date_of_entry), 'yyyy-MM-dd')
+          : ''
+      )
+    }
+  }, [initialData, setValue])
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)}>
-      <Input
-        icon={FiUser}
-        placeholder="Nome de Guerra"
-        {...register('name')}
-        error={errors.name?.message}
+      <Controller
+        name="name"
+        control={control}
+        render={({ field, fieldState: { error } }) => (
+          <Input
+            icon={FiUser}
+            placeholder="Nome de Guerra"
+            error={errors.name?.message}
+            {...field}
+          />
+        )}
       />
 
       <Controller
@@ -83,6 +133,7 @@ export const MilitaryForm: React.FC<MilitaryFormProps> = ({
           <SelectSearch
             {...field}
             icon={FiBookmark}
+            placeholder="Posto/Graduação"
             options={[
               { value: 'Sd', label: 'Sd' },
               { value: 'Cb', label: 'Cb' },
@@ -97,6 +148,9 @@ export const MilitaryForm: React.FC<MilitaryFormProps> = ({
               { value: 'Ten-Cel', label: 'Ten-Cel' },
               { value: 'Cel', label: 'Cel' },
             ]}
+            value={field.value || null}
+            onChange={option => field.onChange(option)}
+            error={errors.rank?.message}
           />
         )}
       />
@@ -108,6 +162,7 @@ export const MilitaryForm: React.FC<MilitaryFormProps> = ({
           <SelectSearch
             {...field}
             icon={FiAward}
+            placeholder="Qualificação"
             options={[
               { value: 'Formação', label: 'Formação' },
               { value: 'Especialização', label: 'Especialização' },
@@ -115,14 +170,24 @@ export const MilitaryForm: React.FC<MilitaryFormProps> = ({
               { value: 'Altos Estudos I', label: 'Altos Estudos I' },
               { value: 'Altos Estudos II', label: 'Altos Estudos II' },
             ]}
+            value={field.value || null}
+            onChange={option => field.onChange(option)}
+            error={errors.qualification?.message}
           />
         )}
       />
-      <Input
-        icon={FiCalendar}
-        type="date"
-        {...register('date_of_entry')}
-        error={errors.date_of_entry?.message}
+
+      <Controller
+        name="date_of_entry"
+        control={control}
+        render={({ field, fieldState: { error } }) => (
+          <Input
+            icon={FiCalendar}
+            type="date"
+            {...field}
+            error={errors.date_of_entry?.message}
+          />
+        )}
       />
       <Button type="submit">
         {editingMilitaryId ? 'Salvar Alterações' : 'Cadastrar Militar'}

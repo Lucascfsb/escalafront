@@ -8,6 +8,7 @@ import { Layout } from '../../components/Layout'
 import { MilitaryForm } from '../../components/MilitaryForm/MilitaryForm'
 import { MilitaryTable } from '../../components/MilitaryGrid/MilitaryGrid'
 import { MilitarySearch } from '../../components/MilitarySearch/MilitarySearch'
+import { Pagination } from '../../components/Pagination/index'
 
 import { format, parseISO } from 'date-fns'
 import { MainContent } from './styles'
@@ -23,7 +24,7 @@ export const MilitariesPage: React.FC = () => {
   const [editingMilitaryId, setEditingMilitaryId] = useState<string | null>(null)
 
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 6
+  const itemsPerPage = 8
 
   const totalPages = useMemo(() => {
     return Math.ceil(allMilitaries.length / itemsPerPage)
@@ -191,13 +192,18 @@ export const MilitariesPage: React.FC = () => {
 
         <MilitaryTable
           militaries={displayedMilitaries}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          onEdit={handleEditMilitary}
-          onDelete={handleDeleteMilitary}
-          isLoading={isLoading}
+          onIconClick={handleEditMilitary}
         />
+        {totalPages > 1 && (
+          <div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              isLoading={isLoading}
+            />
+          </div>
+        )}
 
         <h2>{editingMilitaryId ? 'Atualizar Militar' : 'Cadastrar Novo Militar'}</h2>
         <MilitaryForm

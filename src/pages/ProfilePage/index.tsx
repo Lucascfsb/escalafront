@@ -10,7 +10,6 @@ import {
   FiMail,
   FiUser,
 } from 'react-icons/fi'
-import * as Yup from 'yup'
 
 import { api } from '../../services/apiClient'
 
@@ -26,13 +25,25 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth'
 import { AvataInput, Container, Content } from './styles'
 
-interface ProfileFormData {
+interface ProfileUpdateData {
   username: string
   email: string
   role: string
   oldPassword: string
-  password: string
-  passwordConfirmation: string
+  password?: string
+  passwordConfirmation?: string
+}
+
+export type FormInput = {
+  username: string
+  email: string
+  role: {
+    value: string
+    label: string
+  }
+  oldPassword?: string
+  password?: string
+  passwordConfirmation?: string
 }
 
 const ProfilePage: React.FC = () => {
@@ -40,33 +51,53 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate()
   const { user, updateUser } = useAuth()
 
+  const getRoleOption = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return { value: 'admin', label: 'Administrador' }
+      case 'usuário':
+        return { value: 'usuário', label: 'Usuário' }
+      case 'consulta':
+        return { value: 'consulta', label: 'Consulta' }
+      default:
+        return { value: '', label: 'Selecione um nível de acesso' }
+    }
+  }
+
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProfileFormData>({
+  } = useForm<FormInput>({
     resolver: yupResolver(ProfilePageSchema),
     defaultValues: {
       username: user.username,
       email: user.email,
-      role: user.role,
+      role: getRoleOption(user.role),
+      oldPassword: '',
+      password: '',
+      passwordConfirmation: '',
     },
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const onSubmit = useCallback(
-    async (data: ProfileFormData) => {
+    async (data: FormInput) => {
       try {
         setIsSubmitting(true)
-        const { username, email, oldPassword, password, role } = data
+        const { username, email } = data
 
-        const updatedProfileData = {
+        const updatedProfileData: ProfileUpdateData = {
           username,
           email,
-          role,
-          oldPassword: oldPassword || undefined,
-          password: password || undefined,
+          role: data.role.value,
+          oldPassword: data.oldPassword || '',
+        }
+
+        if (data.password) {
+          updatedProfileData.password = data.password
+          updatedProfileData.passwordConfirmation = data.passwordConfirmation
         }
 
         const response = await api.put('/profile', updatedProfileData)
@@ -144,84 +175,95 @@ const ProfilePage: React.FC = () => {
           <Controller
             name="username"
             control={control}
-            render={({ field }) => (
-              <Input
-                icon={FiUser}
-                placeholder="Nome de Usuário"
-                {...field}
-                error={errors.username?.message}
-              />
-            )}
+            render={({ field }) => {
+              return (
+                <Input
+                  icon={FiUser}
+                  placeholder="Nome de Usuário"
+                  {...field}
+                  error={errors.username?.message}
+                />
+              )
+            }}
           />
           <Controller
             name="email"
             control={control}
-            render={({ field }) => (
-              <Input
-                icon={FiMail}
-                type="email"
-                placeholder="Email"
-                {...field}
-                error={errors.email?.message}
-              />
-            )}
+            render={({ field }) => {
+              return (
+                <Input
+                  icon={FiMail}
+                  type="email"
+                  placeholder="Email"
+                  {...field}
+                  error={errors.email?.message}
+                />
+              )
+            }}
           />
 
           <Controller
             name="oldPassword"
             control={control}
-            render={({ field }) => (
-              <Input
-                $containerStyle={{ marginTop: 24 }}
-                icon={FiLock}
-                type="password"
-                placeholder="Senha atual"
-                {...field}
-                error={errors.oldPassword?.message}
-              />
-            )}
+            render={({ field }) => {
+              return (
+                <Input
+                  $containerStyle={{ marginTop: 24 }}
+                  icon={FiLock}
+                  type="password"
+                  placeholder="Senha atual"
+                  {...field}
+                  error={errors.oldPassword?.message}
+                />
+              )
+            }}
           />
           <Controller
             name="password"
             control={control}
-            render={({ field }) => (
-              <Input
-                icon={FiLock}
-                type="password"
-                placeholder="Nova senha"
-                {...field}
-                error={errors.password?.message}
-              />
-            )}
+            render={({ field }) => {
+              return (
+                <Input
+                  icon={FiLock}
+                  type="password"
+                  placeholder="Nova senha"
+                  {...field}
+                  error={errors.password?.message}
+                />
+              )
+            }}
           />
           <Controller
             name="passwordConfirmation"
             control={control}
-            render={({ field }) => (
-              <Input
-                icon={FiLock}
-                type="password"
-                placeholder="Confirmar senha"
-                {...field}
-                error={errors.passwordConfirmation?.message}
-              />
-            )}
+            render={({ field }) => {
+              return (
+                <Input
+                  icon={FiLock}
+                  type="password"
+                  placeholder="Confirmar senha"
+                  {...field}
+                  error={errors.passwordConfirmation?.message}
+                />
+              )
+            }}
           />
-
           <Controller
             name="role"
             control={control}
-            render={({ field }) => (
-              <SelectSearch
-                icon={FiChevronDown}
-                options={[
-                  { value: 'admin', label: 'Administrador' },
-                  { value: 'usuario', label: 'Usuário' },
-                  { value: 'consulta', label: 'Consulta' },
-                ]}
-                {...field}
-              />
-            )}
+            render={({ field }) => {
+              return (
+                <SelectSearch
+                  icon={FiChevronDown}
+                  options={[
+                    { value: 'admin', label: 'Administrador' },
+                    { value: 'usuário', label: 'Usuário' },
+                    { value: 'consulta', label: 'Consulta' },
+                  ]}
+                  {...field}
+                />
+              )
+            }}
           />
 
           <Button type="submit" loading={isSubmitting}>

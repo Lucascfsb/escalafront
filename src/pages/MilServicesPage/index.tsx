@@ -27,6 +27,15 @@ interface ServiceType {
   update_at: string
 }
 
+type FormInput = {
+  name: string
+  description: string
+  rank: {
+    value: string
+    label: string
+  }
+}
+
 export interface ServiceTypeFormData {
   name: string
   description: string
@@ -40,7 +49,13 @@ interface SearchServiceData {
 const serviceTypeSchema = Yup.object().shape({
   name: Yup.string().required('Nome é obrigatório'),
   description: Yup.string().default(''),
-  rank: Yup.string().required('Selecione uma patente'),
+  rank: Yup.object()
+    .shape({
+      value: Yup.string().required('Selecione uma patente'),
+      label: Yup.string().required(),
+    })
+    .nullable()
+    .required('Selecione uma patente'),
 })
 
 const searchServiceSchema = Yup.object().shape({
@@ -65,12 +80,12 @@ const MilServicesPage: React.FC = () => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<ServiceTypeFormData>({
+  } = useForm<FormInput>({
     resolver: yupResolver(serviceTypeSchema),
     defaultValues: {
       name: '',
       description: '',
-      rank: 'Selecione uma Opção',
+      rank: { value: '', label: 'Selecione uma Opção' },
     },
   })
 
@@ -134,7 +149,7 @@ const MilServicesPage: React.FC = () => {
   }, [allServicesType, currentPage])
 
   const handleSubmitServiceType = useCallback(
-    async (data: ServiceTypeFormData) => {
+    async (data: FormInput) => {
       setIsLoading(true)
       setError(null)
       try {
@@ -187,7 +202,10 @@ const MilServicesPage: React.FC = () => {
   const handleEditServiceType = useCallback(
     (serviceType: ServiceType) => {
       setEditingServiceTypesId(serviceType.id)
-      reset(serviceType)
+      reset({
+        ...serviceType,
+        rank: { value: serviceType.rank, label: serviceType.rank },
+      })
     },
     [reset]
   )
@@ -271,12 +289,7 @@ const MilServicesPage: React.FC = () => {
             {allServicesType.length > 0 ? (
               <div>
                 {displayedServicesTypes.map(serviceType => (
-                  <ServiceDisplay
-                    key={serviceType.id}
-                    service={serviceType}
-                    onEdit={handleEditServiceType}
-                    onDelete={handleDeleteServiceType}
-                  />
+                  <ServiceDisplay key={serviceType.id} service={serviceType} />
                 ))}
               </div>
             ) : (

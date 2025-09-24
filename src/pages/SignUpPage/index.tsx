@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FiArrowLeft, FiChevronDown, FiLock, FiMail, FiUser } from 'react-icons/fi'
 import { Link, useNavigate } from 'react-router-dom'
-import * as Yup from 'yup'
+import { SignUpPageSchema } from './schema'
 
 import { api } from '../../services/apiClient'
 
@@ -26,17 +26,16 @@ interface SignUpFormData {
   role: string
 }
 
-const SignUpPageSchema = Yup.object().shape({
-  username: Yup.string().required('Nome de Usuário obrigatório'),
-  email: Yup.string().required('E-mail obrigatório').email('Digite um E-mail válido'),
-  password: Yup.string()
-    .min(6, 'A senha deve ter no mínimo 6 dígitos')
-    .required('Senha obrigatória'),
-  password_confirmation: Yup.string()
-    .oneOf([Yup.ref('password'), undefined], 'Confirmação de senha incorreta')
-    .required('Confirmação de senha obrigatória'),
-  role: Yup.string().required('Selecione seu nível de acesso'),
-})
+interface FormInput {
+  username: string
+  email: string
+  password: string
+  password_confirmation: string
+  role: {
+    value: string
+    label: string
+  }
+}
 
 const SignUpPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
@@ -47,15 +46,24 @@ const SignUpPage: React.FC = () => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignUpFormData>({
+  } = useForm<FormInput>({
     resolver: yupResolver(SignUpPageSchema),
   })
 
   const onSubmit = useCallback(
-    async (data: SignUpFormData) => {
+    async (data: FormInput) => {
       try {
         setLoading(true)
-        await api.post('/users', data)
+
+        const finalData: SignUpFormData = {
+          username: data.username,
+          email: data.email,
+          password: data.password,
+          password_confirmation: data.password_confirmation,
+          role: data.role.value,
+        }
+
+        await api.post('/users', finalData)
 
         navigate('/')
 

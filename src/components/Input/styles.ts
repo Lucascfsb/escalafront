@@ -49,6 +49,7 @@ export const Container = styled.div<ContainerProps>`
     border: 0;
     color: #333;
   };
+  
 
   svg {
     margin-right: 16px;
@@ -71,4 +72,11 @@ export const ErrorContainer = styled(Tooltip)`
       border-color: #c53030 transparent;
     }
   }
+`
+
+export const RightIconContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: -400px;
+  cursor: pointer;
 `

@@ -16,13 +16,15 @@ export const SignUpPageSchema = Yup.object().shape({
 
   password: Yup.string()
     .required('Senha é obrigatória')
-    .min(8, 'A senha deve ter no mínimo 8 caracteres')
-    .matches(/[a-z]+/, 'A senha deve conter uma letra minúscula')
-    .matches(/[A-Z]+/, 'A senha deve conter uma letra maiúscula')
-    .matches(/[0-9]+/, 'A senha deve conter um número')
-    .matches(/[^A-Za-z0-9\s]+/, 'A senha deve conter um caractere especial'),
+    .min(6, 'A senha deve ter no mínimo 6 caracteres'),
 
   password_confirmation: Yup.string()
     .required('Confirmação de senha é obrigatória')
     .oneOf([Yup.ref('password')], 'As senhas não coincidem'),
+  role: Yup.object()
+    .shape({
+      value: Yup.string().required('Selecione seu nível de acesso'),
+      label: Yup.string().required(),
+    })
+    .required('Selecione seu nível de acesso'),
 })

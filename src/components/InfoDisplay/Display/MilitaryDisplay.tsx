@@ -1,25 +1,21 @@
+import { FiPlus } from 'react-icons/fi'
 import type { Military } from '../../../@types/types'
 import { InfoDisplay } from '../index'
 
 interface MilitaryDisplayProps {
   military: Military
-  onEdit: (military: Military) => void
-  onDelete: (id: string) => void
+  onIconClick: () => void
 }
 
-const MilitaryDisplay: React.FC<MilitaryDisplayProps> = ({
-  military,
-  onEdit,
-  onDelete,
-}) => (
+const MilitaryDisplay: React.FC<MilitaryDisplayProps> = ({ military, onIconClick }) => (
   <InfoDisplay<Military>
     item={military}
-    onEdit={onEdit}
-    onDelete={onDelete}
     itemType="military"
+    icon={FiPlus}
+    onIconClick={onIconClick}
     fields={[
       { label: 'Nome', value: military.name },
-      { label: 'Patente', value: military.rank },
+      { label: 'Posto/Grad', value: military.rank },
       { label: 'Qualificação', value: military.qualification },
       {
         label: 'Data de Entrada',
