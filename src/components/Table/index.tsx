@@ -4,13 +4,7 @@ import type React from 'react'
 import { FiUser } from 'react-icons/fi'
 import { SelectSearch } from '../SelectSearch'
 
-import {
-  SelectInput,
-  TableComponent,
-  TableContainer,
-  TableData,
-  TableHeader,
-} from './styles'
+import { TableComponent, TableContainer, TableData, TableHeader } from './styles'
 
 export interface ServiceType {
   id: string

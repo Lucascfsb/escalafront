@@ -5,6 +5,7 @@ import { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FiAward, FiBookmark, FiCalendar, FiUser } from 'react-icons/fi'
 
+import { qualificationOptions, rankOptions } from '../../config/militaryOptions'
 import { useToast } from '../../hooks/toast'
 import type { MilitaryFormData } from '../../pages/MilitariesPage/types'
 import { Button } from '../Button/index'
@@ -26,10 +27,10 @@ export type FormInput = {
 }
 
 interface MilitaryFormProps {
-  editingMilitaryId: string | null
+  editingMilitaryId?: string | null
   initialData?: MilitaryFormData
   onSubmit: (data: MilitaryFormData) => Promise<void>
-  onCancelEdit: () => void
+  onCancelEdit?: () => void
 }
 
 export const MilitaryForm: React.FC<MilitaryFormProps> = ({
@@ -54,13 +55,12 @@ export const MilitaryForm: React.FC<MilitaryFormProps> = ({
       }
     : {
         name: '',
-        rank: { value: '', label: 'Posto/Graduação' },
-        qualification: { value: '', label: 'Qualificação' },
+        rank: null as unknown as FormInput['rank'],
+        qualification: null as unknown as FormInput['qualification'],
         date_of_entry: '',
       }
 
   const {
-    register,
     handleSubmit,
     formState: { errors },
     reset,
@@ -134,20 +134,7 @@ export const MilitaryForm: React.FC<MilitaryFormProps> = ({
             {...field}
             icon={FiBookmark}
             placeholder="Posto/Graduação"
-            options={[
-              { value: 'Sd', label: 'Sd' },
-              { value: 'Cb', label: 'Cb' },
-              { value: '3° Sgt', label: '3° Sgt' },
-              { value: '2° Sgt', label: '2° Sgt' },
-              { value: '1° Sgt', label: '1° Sgt' },
-              { value: 'Asp', label: 'Asp' },
-              { value: '2° Ten', label: '2° Ten' },
-              { value: '1° Ten', label: '1° Ten' },
-              { value: 'Cap', label: 'Cap' },
-              { value: 'Maj', label: 'Maj' },
-              { value: 'Ten-Cel', label: 'Ten-Cel' },
-              { value: 'Cel', label: 'Cel' },
-            ]}
+            options={rankOptions}
             value={field.value || null}
             onChange={option => field.onChange(option)}
             error={errors.rank?.message}
@@ -163,13 +150,7 @@ export const MilitaryForm: React.FC<MilitaryFormProps> = ({
             {...field}
             icon={FiAward}
             placeholder="Qualificação"
-            options={[
-              { value: 'Formação', label: 'Formação' },
-              { value: 'Especialização', label: 'Especialização' },
-              { value: 'Aperfeiçoamento', label: 'Aperfeiçoamento' },
-              { value: 'Altos Estudos I', label: 'Altos Estudos I' },
-              { value: 'Altos Estudos II', label: 'Altos Estudos II' },
-            ]}
+            options={qualificationOptions}
             value={field.value || null}
             onChange={option => field.onChange(option)}
             error={errors.qualification?.message}

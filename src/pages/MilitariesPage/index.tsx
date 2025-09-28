@@ -6,12 +6,14 @@ import { api } from '../../services/apiClient'
 
 import { Layout } from '../../components/Layout'
 import { MilitaryForm } from '../../components/MilitaryForm/MilitaryForm'
-import { MilitaryTable } from '../../components/MilitaryGrid/MilitaryGrid'
+import { MilitaryGrid } from '../../components/MilitaryGrid/MilitaryGrid'
 import { MilitarySearch } from '../../components/MilitarySearch/MilitarySearch'
+import { Modal } from '../../components/Modal/index'
 import { Pagination } from '../../components/Pagination/index'
 
 import { format, parseISO } from 'date-fns'
-import { MainContent } from './styles'
+import { Button } from '../../components/Button'
+import { ButtonContainer, MainContent } from './styles'
 import type { Military, MilitaryFormData } from './types'
 
 export const MilitariesPage: React.FC = () => {
@@ -21,10 +23,13 @@ export const MilitariesPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [editingMilitaryId, setEditingMilitaryId] = useState<string | null>(null)
+
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false)
+  const [militaryToEdit, setMilitaryToEdit] = useState<Military | null>(null)
+  const [militaryForActions, setMilitaryForActions] = useState<Military | null>(null)
 
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 8
+  const itemsPerPage = 24
 
   const totalPages = useMemo(() => {
     return Math.ceil(allMilitaries.length / itemsPerPage)
@@ -35,6 +40,7 @@ export const MilitariesPage: React.FC = () => {
     const endIndex = startIndex + itemsPerPage
     return allMilitaries.slice(startIndex, endIndex)
   }, [allMilitaries, currentPage])
+  // ...
 
   const fetchMilitaries = useCallback(
     async (name?: string) => {
@@ -81,6 +87,8 @@ export const MilitariesPage: React.FC = () => {
     async (data: MilitaryFormData) => {
       setIsLoading(true)
 
+      const militaryId = militaryToEdit?.id
+
       try {
         const dataToSave = {
           name: data.name,
@@ -89,14 +97,13 @@ export const MilitariesPage: React.FC = () => {
           date_of_entry: data.date_of_entry,
         }
 
-        if (editingMilitaryId) {
-          await api.put<Military>(`/militaries/${editingMilitaryId}`, dataToSave)
+        if (militaryId) {
+          await api.put<Military>(`/militaries/${militaryId}`, dataToSave)
           addToast({
             type: 'success',
             title: 'Militar Atualizado',
             description: 'Os dados do militar foram atualizados com sucesso!',
           })
-          setEditingMilitaryId(null)
         } else {
           await api.post('/militaries', dataToSave)
           addToast({
@@ -106,29 +113,25 @@ export const MilitariesPage: React.FC = () => {
           })
         }
 
+        setIsFormModalOpen(false)
+        setMilitaryToEdit(null)
+        setMilitaryForActions(null)
         await reloadDataAndResetPage()
       } catch (err) {
         addToast({
           type: 'error',
-          title: `Erro ao ${editingMilitaryId ? 'atualizar' : 'cadastrar'} militar`,
+          title: `Erro ao ${militaryId ? 'atualizar' : 'cadastrar'} militar`,
           description: 'Ocorreu um erro. Tente novamente ou verifique os dados.',
         })
       } finally {
         setIsLoading(false)
       }
     },
-    [editingMilitaryId, addToast, reloadDataAndResetPage]
+    [militaryToEdit, addToast, reloadDataAndResetPage]
   )
-
-  const handleEditMilitary = useCallback((military: Military) => {
-    setEditingMilitaryId(military.id)
-  }, [])
 
   const handleDeleteMilitary = useCallback(
     async (id: string) => {
-      if (!window.confirm('Tem certeza que deseja deletar este militar?')) {
-        return
-      }
       setError(null)
       setIsLoading(true)
 
@@ -139,6 +142,7 @@ export const MilitariesPage: React.FC = () => {
           title: 'Militar Deletado',
           description: 'Militar removido com sucesso!',
         })
+        setMilitaryForActions(null)
         await reloadDataAndResetPage()
       } catch (err) {
         setError('Erro ao deletar militar.')
@@ -154,9 +158,40 @@ export const MilitariesPage: React.FC = () => {
     [addToast, reloadDataAndResetPage]
   )
 
-  const handleCancelEdit = useCallback(() => {
-    setEditingMilitaryId(null)
+  const handleOpenCreationModal = useCallback(() => {
+    setMilitaryToEdit(null)
+    setMilitaryForActions(null)
+    setIsFormModalOpen(true)
   }, [])
+
+  const handleOpenEditModal = useCallback((military: Military) => {
+    setMilitaryToEdit(military)
+    setMilitaryForActions(null)
+    setIsFormModalOpen(true)
+  }, [])
+
+  const handleOpenActionsModal = useCallback((military: Military) => {
+    setMilitaryForActions(military)
+  }, [])
+
+  const handleCloseFormModal = useCallback(() => {
+    setIsFormModalOpen(false)
+    setMilitaryToEdit(null)
+  }, [])
+
+  const handleCloseActionsModal = useCallback(() => {
+    setMilitaryForActions(null)
+  }, [])
+
+  const initialData = useMemo(() => {
+    if (!militaryToEdit) {
+      return undefined
+    }
+    return {
+      ...militaryToEdit,
+      date_of_entry: format(parseISO(militaryToEdit.date_of_entry), 'yyyy-MM-dd'),
+    } as MilitaryFormData
+  }, [militaryToEdit])
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -165,20 +200,6 @@ export const MilitariesPage: React.FC = () => {
     },
     [currentPage, totalPages]
   )
-
-  const initialData = useMemo(() => {
-    if (!editingMilitaryId) {
-      return undefined
-    }
-    const militaryToEdit = allMilitaries.find(m => m.id === editingMilitaryId)
-    if (militaryToEdit) {
-      return {
-        ...militaryToEdit,
-        date_of_entry: format(parseISO(militaryToEdit.date_of_entry), 'yyyy-MM-dd'),
-      } as MilitaryFormData
-    }
-    return undefined
-  }, [allMilitaries, editingMilitaryId])
 
   return (
     <Layout>
@@ -189,10 +210,13 @@ export const MilitariesPage: React.FC = () => {
         <h2>Gerenciar Militares</h2>
 
         <MilitarySearch searchTerm={searchTerm} onSearch={setSearchTerm} />
+        <ButtonContainer>
+          <Button onClick={handleOpenCreationModal}>Adicionar Militar</Button>
+        </ButtonContainer>
 
-        <MilitaryTable
+        <MilitaryGrid
           militaries={displayedMilitaries}
-          onIconClick={handleEditMilitary}
+          onIconClick={handleOpenActionsModal}
         />
         {totalPages > 1 && (
           <div>
@@ -204,15 +228,69 @@ export const MilitariesPage: React.FC = () => {
             />
           </div>
         )}
-
-        <h2>{editingMilitaryId ? 'Atualizar Militar' : 'Cadastrar Novo Militar'}</h2>
-        <MilitaryForm
-          onSubmit={handleSubmitMilitary}
-          editingMilitaryId={editingMilitaryId}
-          initialData={initialData}
-          onCancelEdit={handleCancelEdit}
-        />
       </MainContent>
+
+      <Modal
+        isOpen={isFormModalOpen}
+        onClose={handleCloseFormModal}
+        title={militaryToEdit ? 'Atualizar Militar' : 'Cadastrar Novo Militar'}
+      >
+        <MilitaryForm onSubmit={handleSubmitMilitary} initialData={initialData} />
+      </Modal>
+
+      {militaryForActions && (
+        <Modal
+          isOpen={!!militaryForActions}
+          onClose={handleCloseActionsModal}
+          title={`Opções de Ação: ${militaryForActions.name}`}
+        >
+          {militaryForActions && (
+            <div>
+              <h3>Detalhes do Militar:</h3>
+              <p>Nome: {militaryForActions.name || 'Não informado'}</p>
+              <p>Posto/Graduação: {militaryForActions.rank || 'Não informado'}</p>
+              <p>Qualificação: {militaryForActions.qualification || 'Não informado'}</p>
+              <p>
+                Data de Entrada:{' '}
+                {militaryForActions.date_of_entry
+                  ? format(parseISO(militaryForActions.date_of_entry), 'dd/MM/yyyy')
+                  : 'Não informada'}
+              </p>
+              <div
+                style={{
+                  marginTop: '15px',
+                  display: 'flex',
+                  gap: '10px',
+                  justifyContent: 'center',
+                }}
+              >
+                <Button
+                  onClick={() => {
+                    handleCloseActionsModal()
+                    handleOpenEditModal(militaryForActions)
+                  }}
+                >
+                  Editar Dados
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `Tem certeza que deseja deletar ${militaryForActions.name}?`
+                      )
+                    ) {
+                      handleDeleteMilitary(militaryForActions.id)
+                    }
+                  }}
+                >
+                  Remover Militar
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+      )}
     </Layout>
   )
 }

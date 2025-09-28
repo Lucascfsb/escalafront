@@ -26,3 +26,10 @@ export const MainContent = styled.div`
     border: 1px solid ${shade(0.1, '#808000')};
   }
 `
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+`

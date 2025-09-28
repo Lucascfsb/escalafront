@@ -19,13 +19,13 @@ interface InfoDisplayProps<T extends BaseItem> {
   onIconClick?: () => void
 }
 
-export function InfoDisplay<T extends BaseItem>({
+export function InfoDisplay<Type extends BaseItem>({
   item,
   fields,
   itemType = 'item',
   icon: Icon,
   onIconClick,
-}: InfoDisplayProps<T>) {
+}: InfoDisplayProps<Type>) {
   return (
     <Container data-type={itemType}>
       <div className="info-details">

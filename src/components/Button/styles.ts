@@ -9,11 +9,11 @@ export const Container = styled.button<ButtonProps>`
 background: ${props => {
   switch (props.variant) {
     case 'danger':
-      return '#c53030' // Cor vermelha para deletar/cancelar
+      return '#c53030'
     case 'info':
-      return '#808000' // Nova cor azul para "Listar Todos" (exemplo, você pode mudar)
+      return '#808000'
     default:
-      return '#f0c14b' // Cor padrão (amarelo) para "primary"
+      return '#f0c14b'
   }
 }};
   color: ${props => {

@@ -18,6 +18,7 @@ export const Container = styled.div`
     bottom: calc(100% + 12px);
     left: 50%;
     transform: translateX(-50%);
+    text-align: center;
     
     color: #312e38;
 

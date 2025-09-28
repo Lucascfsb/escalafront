@@ -15,6 +15,7 @@ export const SelectContainer = styled.div<ContainerProps>`
   align-items: center;
   color: #999;
 
+
   & + div {
     margin-top: 8px;
   }
@@ -31,11 +32,15 @@ export const SelectContainer = styled.div<ContainerProps>`
       border-color: #c53030;
       color: #c53030;
     `}
+
+  svg {
+    margin-right: 6px;
+  }
 `
 
 export const SelectStyles = styled.div`
   flex: 1;
-
+  
   .custom-select__control {
     background-color: transparent;
     border: none;
@@ -55,6 +60,7 @@ export const SelectStyles = styled.div`
   .custom-select__single-value {
     font-size: 16px;
     color: #333;
+    margin-left: 0;  
   }
   
   .custom-select__menu {
@@ -86,4 +92,5 @@ export const IconContainer = styled.div`
   margin-right: 14px;
   display: flex;
   align-items: center;
+
 `

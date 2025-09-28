@@ -1,6 +1,6 @@
 import type React from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { useCallback, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { FiLogIn, FiMail } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
 
@@ -12,9 +12,9 @@ import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
 import { ForgotPasswordSchema } from './schema'
 
+import { yupResolver } from '@hookform/resolvers/yup'
 import { api } from '../../services/apiClient'
 import { AnimationContainer, Background, Container, Content } from './styles'
-import { yupResolver } from '@hookform/resolvers/yup'
 
 interface ForgotPasswordFormData {
   email: string
@@ -25,7 +25,11 @@ const ForgotPasswordPage: React.FC = () => {
 
   const { addToast } = useToast()
 
-  const { control, handleSubmit, formState: { errors } } = useForm<ForgotPasswordFormData>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordFormData>({
     resolver: yupResolver(ForgotPasswordSchema),
   })
 
@@ -48,13 +52,14 @@ const ForgotPasswordPage: React.FC = () => {
         addToast({
           type: 'error',
           title: 'Erro ao recuperar a senha',
-          description: 'Ocorreu um erro ao realizar a recuperação de senha, verifique o e-mail informado.',
+          description:
+            'Ocorreu um erro ao realizar a recuperação de senha, verifique o e-mail informado.',
         })
       } finally {
         setLoading(false)
       }
     },
-    [addToast],
+    [addToast]
   )
 
   return (
@@ -63,11 +68,8 @@ const ForgotPasswordPage: React.FC = () => {
         <AnimationContainer>
           <img src={logoImg} alt="Exército Brasilero" />
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <form onSubmit={handleSubmit(onSubmit)}>
             <h1>Faça seu logon</h1>
-
 
             <Controller
               name="email"

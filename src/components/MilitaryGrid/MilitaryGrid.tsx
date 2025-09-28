@@ -1,17 +1,17 @@
 import type React from 'react'
 
+import { FiZoomOut } from 'react-icons/fi'
 import type { Military } from '../../pages/MilitariesPage/types'
 import { MilitaryDisplay } from '../InfoDisplay/Display/MilitaryDisplay'
-import { Pagination } from '../Pagination/index'
 
-import { TableContainer } from './styled'
+import { EmptyState, TableContainer } from './styled'
 
 interface MilitaryTableProps {
   militaries: Military[]
   onIconClick: (military: Military) => void
 }
 
-export const MilitaryTable: React.FC<MilitaryTableProps> = ({
+export const MilitaryGrid: React.FC<MilitaryTableProps> = ({
   militaries,
   onIconClick,
 }) => {
@@ -26,7 +26,10 @@ export const MilitaryTable: React.FC<MilitaryTableProps> = ({
           />
         ))
       ) : (
-        <p>Nenhum militar encontrado.</p>
+        <EmptyState>
+          <FiZoomOut />
+          <p>Não encontramos nenhum militar com o termo</p>
+        </EmptyState>
       )}
     </TableContainer>
   )

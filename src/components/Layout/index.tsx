@@ -3,7 +3,7 @@ import { FiPower } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
 import logoImg from '../../assets/brasao.svg'
 import { useAuth } from '../../hooks/auth'
-import {Sidebar} from '../Sidebar'
+import { Sidebar } from '../Sidebar'
 import { Container, Content, Header, HeaderContent, Profile } from './styles'
 
 interface LayoutProps {
@@ -13,7 +13,6 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { signOut, user } = useAuth()
 
-  // Defina os itens de navegação aqui ou passe-os como uma prop se eles variarem significativamente por página
   const navItems = [
     { path: '/militaries', label: 'Militares' },
     { path: '/services', label: 'Serviços' },

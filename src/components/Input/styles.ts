@@ -48,11 +48,12 @@ export const Container = styled.div<ContainerProps>`
     background: transparent;
     border: 0;
     color: #333;
+    padding-right: 16px;
   };
   
 
   svg {
-    margin-right: 16px;
+    margin-right: 19px;
   }
 `
 
@@ -77,6 +78,6 @@ export const ErrorContainer = styled(Tooltip)`
 export const RightIconContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-left: -400px;
+  margin-left: 10px;
   cursor: pointer;
 `

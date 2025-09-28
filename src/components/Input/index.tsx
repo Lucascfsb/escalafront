@@ -12,7 +12,6 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ComponentType<IconBaseProps>
   error?: string
   rightIcon?: React.ComponentType<IconBaseProps>
-
   onRightIconClick?: () => void
 }
 
