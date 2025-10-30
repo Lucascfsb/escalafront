@@ -1,7 +1,11 @@
 import { shade } from 'polished'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
-export const Container = styled.div`
+interface ContainerProps {
+  viewMode?: 'list' | 'card'
+}
+
+export const Container = styled.div<ContainerProps>`
   background: ${shade(0.05, '#312e38')};
   padding: 20px;
   border-radius: 8px;
@@ -12,23 +16,23 @@ export const Container = styled.div`
   position: relative;
 
   .info-icon-button {
-    position: absolute; 
-    top: 20px;    
-    right: 15px;  
+    position: absolute;
+    top: 20px;
+    right: 15px;
     background: transparent;
     border: none;
     cursor: pointer;
-    padding: 0; 
-    line-height: 0; 
+    padding: 0;
+    line-height: 0;
 
     svg {
-      color: #f0c14b; 
+      color: #f0c14b;
       font-size: 24px;
       transition: color 0.2s;
     }
 
     &:hover svg {
-      color: ${shade(0.2, '#f0c14b')}; 
+      color: ${shade(0.2, '#f0c14b')};
     }
   }
 
@@ -41,4 +45,35 @@ export const Container = styled.div`
   p {
     margin-bottom: 5px;
   }
+
+  .info-details {
+    display: flex;
+    flex-direction: column;
+    ${props =>
+      props.viewMode === 'list' &&
+      css`
+        flex-direction: row; 
+        align-items: baseline; 
+        
+        h3 {
+          align-items: center; 
+        }
+
+        p {
+          flex: 1; 
+          margin-right: 20px; 
+
+          span {
+            font-weight: normal; 
+            color: #ccc; 
+          }
+
+          strong.field-value {
+            font-weight: bold; 
+            margin-left: 5px; 
+          }
+        }        
+    `}
+  }
 `
+

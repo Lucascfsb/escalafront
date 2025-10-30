@@ -11,13 +11,15 @@ interface OptionType {
 }
 
 interface SearchableSelectProps {
-  options: OptionType[]
+  options?: OptionType[]
   icon?: React.ComponentType<IconBaseProps>
   value: OptionType | null
   onChange: (value: SingleValue<OptionType>) => void
   placeholder?: string
   isDisabled?: boolean
   error?: string
+  isSelectClearable?: boolean
+  isSelectSearchable?: boolean
 }
 
 const SelectSearch: React.FC<SearchableSelectProps> = ({
@@ -28,6 +30,8 @@ const SelectSearch: React.FC<SearchableSelectProps> = ({
   isDisabled,
   icon: Icon,
   error,
+  isSelectClearable = true,
+  isSelectSearchable = true,
 }) => {
   return (
     <SelectContainer $isErrored={!!error}>
@@ -43,9 +47,9 @@ const SelectSearch: React.FC<SearchableSelectProps> = ({
           onChange={onChange}
           placeholder={placeholder}
           isDisabled={isDisabled}
-          isClearable
-          isSearchable
+          isClearable={isSelectClearable}
           classNamePrefix="custom-select"
+          isSearchable={isSelectSearchable}
         />
       </SelectStyles>
       {error && (

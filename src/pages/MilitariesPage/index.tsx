@@ -7,17 +7,23 @@ import { api } from '../../services/apiClient'
 import { Layout } from '../../components/Layout'
 import { MilitaryForm } from '../../components/MilitaryForm/MilitaryForm'
 import { MilitaryGrid } from '../../components/MilitaryGrid/MilitaryGrid'
+import { MilitaryList } from '../../components/MilitaryList/MilitaryList' 
 import { MilitarySearch } from '../../components/MilitarySearch/MilitarySearch'
 import { Modal } from '../../components/Modal/index'
 import { Pagination } from '../../components/Pagination/index'
 
 import { format, parseISO } from 'date-fns'
+import { FiGrid, FiList, FiPlus } from 'react-icons/fi'
 import { Button } from '../../components/Button'
 import { ButtonContainer, MainContent } from './styles'
 import type { Military, MilitaryFormData } from './types'
 
+type ViewMode = 'cards' | 'list'
+
 export const MilitariesPage: React.FC = () => {
   const { addToast } = useToast()
+
+  const [viewMode, setViewMode] = useState<ViewMode>('cards')
 
   const [allMilitaries, setAllMilitaries] = useState<Military[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -29,18 +35,18 @@ export const MilitariesPage: React.FC = () => {
   const [militaryForActions, setMilitaryForActions] = useState<Military | null>(null)
 
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 24
+  const itemsPerPageOptions = useMemo(() => [12, 24, 40], [])
+  const [itemsPerPage, setItemsPerPage] = useState(itemsPerPageOptions[0])
 
   const totalPages = useMemo(() => {
     return Math.ceil(allMilitaries.length / itemsPerPage)
-  }, [allMilitaries])
+  }, [allMilitaries, itemsPerPage])
 
   const displayedMilitaries = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     return allMilitaries.slice(startIndex, endIndex)
-  }, [allMilitaries, currentPage])
-  // ...
+  }, [allMilitaries, currentPage, itemsPerPage])
 
   const fetchMilitaries = useCallback(
     async (name?: string) => {
@@ -201,30 +207,63 @@ export const MilitariesPage: React.FC = () => {
     [currentPage, totalPages]
   )
 
+  const handleItemsPerPageChange = useCallback((value: string) => {
+    const newItemsPerPage = Number(value)
+    setCurrentPage(1)
+    setItemsPerPage(newItemsPerPage)
+  }, [])
+
   return (
     <Layout>
       <MainContent>
         {error && <p>{error}</p>}
-        {isLoading && <p>Carregando...</p>}
 
         <h2>Gerenciar Militares</h2>
 
         <MilitarySearch searchTerm={searchTerm} onSearch={setSearchTerm} />
         <ButtonContainer>
-          <Button onClick={handleOpenCreationModal}>Adicionar Militar</Button>
+          <Button onClick={handleOpenCreationModal}>
+            <FiPlus />
+            Adicionar Militar
+          </Button>
+          <Button
+            onClick={() => setViewMode('cards')}
+
+            isActive={viewMode === 'cards'}
+          >
+            <FiGrid /> Cards
+          </Button>
+          <Button
+            onClick={() => setViewMode('list')}
+            isActive={viewMode === 'list'}
+          >
+            <FiList />
+            Lista
+          </Button>
         </ButtonContainer>
 
-        <MilitaryGrid
-          militaries={displayedMilitaries}
-          onIconClick={handleOpenActionsModal}
-        />
-        {totalPages > 1 && (
+        {viewMode === 'cards' ? (
+          <MilitaryGrid
+            militaries={displayedMilitaries}
+            onIconClick={handleOpenActionsModal}
+          />
+        ) : (
+          <MilitaryList
+            militaries={displayedMilitaries}
+            onIconClick={handleOpenActionsModal}
+          />
+        )}
+
+        {allMilitaries.length > 0 && (
           <div>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
               isLoading={isLoading}
+              itemsPerPage={itemsPerPage}
+              itemsPerPageOptions={itemsPerPageOptions}
+              onItemsPerPageChange={handleItemsPerPageChange}
             />
           </div>
         )}
@@ -247,14 +286,14 @@ export const MilitariesPage: React.FC = () => {
           {militaryForActions && (
             <div>
               <h3>Detalhes do Militar:</h3>
-              <p>Nome: {militaryForActions.name || 'Não informado'}</p>
-              <p>Posto/Graduação: {militaryForActions.rank || 'Não informado'}</p>
-              <p>Qualificação: {militaryForActions.qualification || 'Não informado'}</p>
+              <p>Nome: <span>{militaryForActions.name || 'Não informado'}</span></p>
+              <p>Posto/Graduação: <span>{militaryForActions.rank || 'Não informado'}</span></p>
+              <p>Qualificação: <span>{militaryForActions.qualification || 'Não informado'}</span></p>
               <p>
-                Data de Entrada:{' '}
+                Data de Entrada:<span>{' '}
                 {militaryForActions.date_of_entry
                   ? format(parseISO(militaryForActions.date_of_entry), 'dd/MM/yyyy')
-                  : 'Não informada'}
+                  : 'Não informada'}</span>
               </p>
               <div
                 style={{

@@ -60,11 +60,18 @@ export const Body = styled.div`
   padding: 20px;
 
   h3 {
-    color: #f0c14b; /* Cor dourada para o título */
-    margin-bottom: 10px; /* Espaçamento inferior */
+    color: #f0c14b; 
+    margin-bottom: 10px;
   }
 
   p {
-    margin: 5px 0;
+    margin: 10px;
+    line-height: 1.5;
+    display: flex;
+  }
+
+  span {
+    margin-left: 10px;
+    color: #f0c14b;
   }
 `

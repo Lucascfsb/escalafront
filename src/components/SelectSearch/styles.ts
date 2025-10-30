@@ -21,7 +21,7 @@ export const SelectContainer = styled.div<ContainerProps>`
   }
 
   &:focus-within {
-    border-color: #4CAF50;
+    border-color: #f0c14b;
     background-color: #fff;
     color: #556b2f;
   }
@@ -54,13 +54,15 @@ export const SelectStyles = styled.div`
 
   .custom-select__value-container {
     padding: 0;
+    align-items: center;
   }
   
   .custom-select__placeholder,
   .custom-select__single-value {
     font-size: 16px;
     color: #333;
-    margin-left: 0;  
+    margin-left: 4px;
+    margin-right: 0;
   }
   
   .custom-select__menu {
@@ -78,13 +80,32 @@ export const SelectStyles = styled.div`
   }
   
   .custom-select__option--is-selected {
-    background-color: #4CAF50;
+    background-color: #f0c14b;
     color: #fff;
   }
   
   .custom-select__indicator-separator {
     color: #999;
   }
+
+  .custom-select__clear-indicator {
+    padding: 3px; 
+    margin-right: -2px; 
+    cursor: pointer;
+  }
+
+  .custom-select__dropdown-indicator {
+    padding: 3px; 
+    display: flex; 
+    
+    svg {
+      margin-left: 6px; 
+      width: 16px; 
+      height: 16px;
+      margin-right: 0;
+    }
+  }
+  
 `
 
 export const IconContainer = styled.div`

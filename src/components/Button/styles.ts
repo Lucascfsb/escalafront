@@ -35,6 +35,9 @@ background: ${props => {
   font-weight: 500;
   margin-top: 16px;
   transition: background-color 0.2s;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
 
   &:hover {
     background: ${props => {
@@ -52,5 +55,10 @@ background: ${props => {
     &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  svg {
+    font-size: 20px;
+    margin-right: 8px;
   }
 `

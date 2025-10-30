@@ -17,6 +17,7 @@ interface InfoDisplayProps<T extends BaseItem> {
   itemType?: string
   icon?: React.ComponentType
   onIconClick?: () => void
+  viewMode?: 'list' | 'card'
 }
 
 export function InfoDisplay<Type extends BaseItem>({
@@ -25,15 +26,17 @@ export function InfoDisplay<Type extends BaseItem>({
   itemType = 'item',
   icon: Icon,
   onIconClick,
+  viewMode,
 }: InfoDisplayProps<Type>) {
   return (
-    <Container data-type={itemType}>
+    <Container data-type={itemType} viewMode={viewMode}>
       <div className="info-details">
         <h3>Detalhes:</h3>
 
         {fields.map(field => (
           <p key={field.label}>
-            <strong>{field.label}:</strong> {field.value}
+            <span>{field.label}:</span> 
+            <strong className="field-value">{field.value}</strong>
           </p>
         ))}
       </div>

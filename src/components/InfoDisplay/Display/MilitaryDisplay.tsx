@@ -5,14 +5,16 @@ import { InfoDisplay } from '../index'
 interface MilitaryDisplayProps {
   military: Military
   onIconClick: () => void
+  viewMode?: 'list' | 'card'
 }
 
-const MilitaryDisplay: React.FC<MilitaryDisplayProps> = ({ military, onIconClick }) => (
+const MilitaryDisplay: React.FC<MilitaryDisplayProps> = ({ military, onIconClick, viewMode }) => (
   <InfoDisplay<Military>
     item={military}
     itemType="military"
     icon={FiPlus}
     onIconClick={onIconClick}
+    viewMode={viewMode} 
     fields={[
       { label: 'Nome', value: military.name },
       { label: 'Posto/Grad', value: military.rank },

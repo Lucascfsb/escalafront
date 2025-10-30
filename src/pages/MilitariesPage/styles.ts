@@ -14,17 +14,6 @@ export const MainContent = styled.div`
     margin-bottom: 8px;
     font-size: 28px;
   }
-
-  form {
-    background: ${shade(0.05, '#312e38')};
-    padding: 20px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 4px;
-    border: 1px solid ${shade(0.1, '#808000')};
-  }
 `
 
 export const ButtonContainer = styled.div`

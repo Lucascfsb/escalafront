@@ -5,18 +5,25 @@ export const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
   gap: 10px;
+  margin-bottom: 20px;
+
+  > div:last-child {
+    width: 80px;
+    height: 42px;
+    margin-top: 16px;
+  }
 
   button {
     background: #f0c14b; 
     color: #312e38; 
     border: 0;
     border-radius: 5px;
-    padding: 10px 15px;
     font-weight: 500;
     transition: background-color 0.2s;
-    width: auto; 
+    width: 40px;
+    height: 40px;
+    padding: 0;
 
     &:hover {
       background: ${shade(0.2, '#f0c14b')};
@@ -27,6 +34,10 @@ export const PaginationContainer = styled.div`
       cursor: not-allowed;
       opacity: 0.6;
     }
+  }
+
+  svg {
+    margin-left: 8px;
   }
 
   span {
