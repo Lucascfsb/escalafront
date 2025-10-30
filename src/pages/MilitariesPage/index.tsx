@@ -4,26 +4,24 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useToast } from '../../hooks/toast'
 import { api } from '../../services/apiClient'
 
+import { MilitaryForm } from '../../components/Forms/MilitaryForm'
+import { MilitaryGrid } from '../../components/Grid/MilitaryGrid'
 import { Layout } from '../../components/Layout'
-import { MilitaryForm } from '../../components/MilitaryForm/MilitaryForm'
-import { MilitaryGrid } from '../../components/MilitaryGrid/MilitaryGrid'
-import { MilitaryList } from '../../components/MilitaryList/MilitaryList' 
-import { MilitarySearch } from '../../components/MilitarySearch/MilitarySearch'
+import { MilitaryList } from '../../components/List/MilitaryList/MilitaryList'
 import { Modal } from '../../components/Modal/index'
 import { Pagination } from '../../components/Pagination/index'
+import { MilitarySearch } from '../../components/Search/Search'
 
 import { format, parseISO } from 'date-fns'
 import { FiGrid, FiList, FiPlus } from 'react-icons/fi'
 import { Button } from '../../components/Button'
 import { ButtonContainer, MainContent } from './styles'
-import type { Military, MilitaryFormData } from './types'
-
-type ViewMode = 'cards' | 'list'
+import type { Military, MilitaryFormData, ViewMode } from './types'
 
 export const MilitariesPage: React.FC = () => {
   const { addToast } = useToast()
 
-  const [viewMode, setViewMode] = useState<ViewMode>('cards')
+  const [viewMode, setViewMode] = useState<ViewMode>('card')
 
   const [allMilitaries, setAllMilitaries] = useState<Military[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -226,23 +224,16 @@ export const MilitariesPage: React.FC = () => {
             <FiPlus />
             Adicionar Militar
           </Button>
-          <Button
-            onClick={() => setViewMode('cards')}
-
-            isActive={viewMode === 'cards'}
-          >
+          <Button onClick={() => setViewMode('card')} isActive={viewMode === 'card'}>
             <FiGrid /> Cards
           </Button>
-          <Button
-            onClick={() => setViewMode('list')}
-            isActive={viewMode === 'list'}
-          >
+          <Button onClick={() => setViewMode('list')} isActive={viewMode === 'list'}>
             <FiList />
             Lista
           </Button>
         </ButtonContainer>
 
-        {viewMode === 'cards' ? (
+        {viewMode === 'card' ? (
           <MilitaryGrid
             militaries={displayedMilitaries}
             onIconClick={handleOpenActionsModal}
@@ -286,14 +277,24 @@ export const MilitariesPage: React.FC = () => {
           {militaryForActions && (
             <div>
               <h3>Detalhes do Militar:</h3>
-              <p>Nome: <span>{militaryForActions.name || 'Não informado'}</span></p>
-              <p>Posto/Graduação: <span>{militaryForActions.rank || 'Não informado'}</span></p>
-              <p>Qualificação: <span>{militaryForActions.qualification || 'Não informado'}</span></p>
               <p>
-                Data de Entrada:<span>{' '}
-                {militaryForActions.date_of_entry
-                  ? format(parseISO(militaryForActions.date_of_entry), 'dd/MM/yyyy')
-                  : 'Não informada'}</span>
+                Nome: <span>{militaryForActions.name || 'Não informado'}</span>
+              </p>
+              <p>
+                Posto/Graduação: <span>{militaryForActions.rank || 'Não informado'}</span>
+              </p>
+              <p>
+                Qualificação:{' '}
+                <span>{militaryForActions.qualification || 'Não informado'}</span>
+              </p>
+              <p>
+                Data de Entrada:
+                <span>
+                  {' '}
+                  {militaryForActions.date_of_entry
+                    ? format(parseISO(militaryForActions.date_of_entry), 'dd/MM/yyyy')
+                    : 'Não informada'}
+                </span>
               </p>
               <div
                 style={{

@@ -18,3 +18,6 @@ export interface MilitaryFormData {
 export interface SearchFormData {
   searchName: string
 }
+
+export type ViewMode = 'card' | 'list'
+

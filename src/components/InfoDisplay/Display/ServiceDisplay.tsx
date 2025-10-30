@@ -4,12 +4,16 @@ import { InfoDisplay } from '../index'
 
 interface ServiceDisplayProps {
   service: Service
+  onIconClick: () => void
+  viewMode?: 'list' | 'card'
 }
 
-const ServiceDisplay: React.FC<ServiceDisplayProps> = ({ service }) => (
+const ServiceDisplay: React.FC<ServiceDisplayProps> = ({ service, onIconClick, viewMode }) => (
   <InfoDisplay<Service>
     item={service}
     itemType="serviceType"
+    onIconClick={onIconClick}
+    viewMode={viewMode} 
     icon={FiPlus}
     fields={[
       { label: 'Nome', value: service.name },

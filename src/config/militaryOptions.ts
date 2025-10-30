@@ -13,6 +13,14 @@ export const rankOptions = [
   { value: 'Cel', label: 'Cel' },
 ]
 
+export const rankService = [
+  { value: 'Sd', label: 'Sd' },
+  { value: 'Cb', label: 'Cb' },
+  { value: 'Serviço de Sgt', label: 'Serviço de Sgt' },
+  { value: 'Serviço de Oficial Subalterno', label: 'Serviço de Oficial Subalterno' },
+  { value: 'Serviço de Oficial Superior', label: 'Serviço de Oficial Superior' },
+];
+
 export const qualificationOptions = [
   { value: 'Formação', label: 'Formação' },
   { value: 'Especialização', label: 'Especialização' },

@@ -11,7 +11,7 @@ import type { MilitaryFormData } from '../../pages/MilitariesPage/types'
 import { Button } from '../Button/index'
 import { Input } from '../Input/index'
 import { SelectSearch } from '../SelectSearch'
-import { militaresPageSchema } from './schema'
+import { militaresPageSchema } from './MilitarySchema'
 
 export type FormInput = {
   name: string
