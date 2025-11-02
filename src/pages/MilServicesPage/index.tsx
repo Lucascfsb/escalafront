@@ -110,7 +110,7 @@ export const MilServicesPage: React.FC = () => {
             description: 'Os dados do serviço foram atualizados com sucesso!',
           })
         } else {
-          await api.post('/serviceTypes', dataToSave) // Endpoint alterado
+          await api.post('/serviceTypes', dataToSave)
           addToast({
             type: 'success',
             title: 'Serviço Cadastrado',
@@ -221,22 +221,24 @@ export const MilServicesPage: React.FC = () => {
       <MainContent>
         {error && <p>{error}</p>}
 
-        <h2>Gerenciar Serviços</h2>
+        <h2>
+          Gerenciar Serviços
+          <ButtonContainer>
+            <Button onClick={handleOpenCreationModal}>
+              <FiPlus />
+              Adicionar Serviço
+            </Button>
+            <Button onClick={() => setViewMode('card')} isActive={viewMode === 'card'}>
+              <FiGrid /> Cards
+            </Button>
+            <Button onClick={() => setViewMode('list')} isActive={viewMode === 'list'}>
+              <FiList />
+              Lista
+            </Button>
+          </ButtonContainer>
+        </h2>
 
         <ServiceSearch searchTerm={searchTerm} onSearch={setSearchTerm} />
-        <ButtonContainer>
-          <Button onClick={handleOpenCreationModal}>
-            <FiPlus />
-            Adicionar Serviço
-          </Button>
-          <Button onClick={() => setViewMode('card')} isActive={viewMode === 'card'}>
-            <FiGrid /> Cards
-          </Button>
-          <Button onClick={() => setViewMode('list')} isActive={viewMode === 'list'}>
-            <FiList />
-            Lista
-          </Button>
-        </ButtonContainer>
 
         {viewMode === 'card' ? (
           <ServiceGrid

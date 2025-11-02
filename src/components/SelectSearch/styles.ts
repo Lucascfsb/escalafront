@@ -64,11 +64,7 @@ export const SelectStyles = styled.div`
     margin-left: 4px;
     margin-right: 0;
   }
-  
-  .custom-select__menu {
-    z-index: 10;
-  }
-  
+    
   .custom-select__option {
     font-size: 14px;
     background-color: white;

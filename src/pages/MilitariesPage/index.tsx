@@ -216,22 +216,24 @@ export const MilitariesPage: React.FC = () => {
       <MainContent>
         {error && <p>{error}</p>}
 
-        <h2>Gerenciar Militares</h2>
+        <h2>
+          Gerenciar Militares
+          <ButtonContainer>
+            <Button onClick={handleOpenCreationModal}>
+              <FiPlus />
+              Adicionar Militar
+            </Button>
+            <Button onClick={() => setViewMode('card')} isActive={viewMode === 'card'}>
+              <FiGrid /> Cards
+            </Button>
+            <Button onClick={() => setViewMode('list')} isActive={viewMode === 'list'}>
+              <FiList />
+              Lista
+            </Button>
+          </ButtonContainer>
+        </h2>
 
         <MilitarySearch searchTerm={searchTerm} onSearch={setSearchTerm} />
-        <ButtonContainer>
-          <Button onClick={handleOpenCreationModal}>
-            <FiPlus />
-            Adicionar Militar
-          </Button>
-          <Button onClick={() => setViewMode('card')} isActive={viewMode === 'card'}>
-            <FiGrid /> Cards
-          </Button>
-          <Button onClick={() => setViewMode('list')} isActive={viewMode === 'list'}>
-            <FiList />
-            Lista
-          </Button>
-        </ButtonContainer>
 
         {viewMode === 'card' ? (
           <MilitaryGrid

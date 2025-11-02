@@ -1,4 +1,4 @@
-import { FiPlus } from 'react-icons/fi'
+import { FiZoomIn } from 'react-icons/fi'
 import type { Military } from '../../../@types/types'
 import { InfoDisplay } from '../index'
 
@@ -8,13 +8,17 @@ interface MilitaryDisplayProps {
   viewMode?: 'list' | 'card'
 }
 
-const MilitaryDisplay: React.FC<MilitaryDisplayProps> = ({ military, onIconClick, viewMode }) => (
+const MilitaryDisplay: React.FC<MilitaryDisplayProps> = ({
+  military,
+  onIconClick,
+  viewMode,
+}) => (
   <InfoDisplay<Military>
     item={military}
     itemType="military"
-    icon={FiPlus}
+    icon={FiZoomIn}
     onIconClick={onIconClick}
-    viewMode={viewMode} 
+    viewMode={viewMode}
     fields={[
       { label: 'Nome', value: military.name },
       { label: 'Posto/Grad', value: military.rank },

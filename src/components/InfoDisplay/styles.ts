@@ -47,8 +47,6 @@ export const Container = styled.div<ContainerProps>`
   }
 
   .info-details {
-    border: 2px solid red;
-
     display: flex;
     flex-direction: column;
     ${props =>
@@ -78,4 +76,3 @@ export const Container = styled.div<ContainerProps>`
     `}
   }
 `
-

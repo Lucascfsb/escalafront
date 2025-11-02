@@ -15,38 +15,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../hooks/auth'
 import { useToast } from '../../hooks/toast'
 import { api } from '../../services/apiClient'
+import type { Military, ServiceRendered, ServiceType } from './types'
 
 import { Button } from '../../components/Button'
 import { Layout } from '../../components/Layout'
 import { Table } from '../../components/Table'
 import { MainContent } from './styles'
-
-export interface ServiceType {
-  id: string
-  name: string
-  description?: string
-}
-
-export interface ServiceRendered {
-  id: string
-  military_id: string | null
-  military: Military | null
-  service_types_id: string
-  serviceType: ServiceType
-  service_date: string
-  created_at: string
-  updated_at: string
-}
-
-interface Military {
-  id: string
-  name: string
-  rank: string
-  qualification: string
-  date_of_entry: string
-  created_at: string
-  update_at: string
-}
 
 const ForecastPage: React.FC = () => {
   const { addToast } = useToast()
@@ -212,7 +186,7 @@ const ForecastPage: React.FC = () => {
             const updatedServiceRendered = {
               ...currentEntry,
               military_id: militaryId,
-              military: assignedMilitary, // Use o objeto completo aqui
+              military: assignedMilitary,
             }
             setServicesRendered(prevServices =>
               prevServices.map(entry =>
@@ -304,13 +278,7 @@ const ForecastPage: React.FC = () => {
               </h3>
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
+            <div>
               <div
                 style={{
                   display: 'flex',
@@ -352,13 +320,7 @@ const ForecastPage: React.FC = () => {
           </h3>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
+        <div>
           <div
             style={{
               display: 'flex',

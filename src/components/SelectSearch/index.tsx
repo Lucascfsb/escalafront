@@ -1,7 +1,7 @@
 import type React from 'react'
 import type { IconBaseProps } from 'react-icons'
 import { FiAlertCircle } from 'react-icons/fi'
-import Select, { type SingleValue } from 'react-select'
+import Select, { type SingleValue, type Props as SelectProps } from 'react-select'
 import { ErrorContainer } from '../Input/styles'
 import { IconContainer, SelectContainer, SelectStyles } from './styles'
 
@@ -10,7 +10,7 @@ interface OptionType {
   label: string
 }
 
-interface SearchableSelectProps {
+interface SearchableSelectProps extends SelectProps<OptionType, false> {
   options?: OptionType[]
   icon?: React.ComponentType<IconBaseProps>
   value: OptionType | null
@@ -26,12 +26,13 @@ const SelectSearch: React.FC<SearchableSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = '(Select an option)',
+  placeholder = 'Selecione um militar',
   isDisabled,
   icon: Icon,
   error,
   isSelectClearable = true,
   isSelectSearchable = true,
+  ...rest
 }) => {
   return (
     <SelectContainer $isErrored={!!error}>
@@ -50,6 +51,7 @@ const SelectSearch: React.FC<SearchableSelectProps> = ({
           isClearable={isSelectClearable}
           classNamePrefix="custom-select"
           isSearchable={isSelectSearchable}
+          {...rest}
         />
       </SelectStyles>
       {error && (
