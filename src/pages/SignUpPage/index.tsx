@@ -15,27 +15,9 @@ import logoImg from '../../assets/brasao.svg'
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
 import { SelectSearch } from '../../components/SelectSearch'
+import type { FormInput, SignUpFormData } from './types'
 
 import { AnimationContainer, Background, Container, Content } from './styles'
-
-interface SignUpFormData {
-  username: string
-  email: string
-  password: string
-  password_confirmation: string
-  role: string
-}
-
-interface FormInput {
-  username: string
-  email: string
-  password: string
-  password_confirmation: string
-  role: {
-    value: string
-    label: string
-  }
-}
 
 const SignUpPage: React.FC = () => {
   const [loading, setLoading] = useState(false)

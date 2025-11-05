@@ -4,10 +4,9 @@ import { useCallback, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FiLock, FiLogIn, FiMail } from 'react-icons/fi'
 import { Link, useNavigate } from 'react-router-dom'
-import * as Yup from 'yup'
-
 import { useAuth } from '../../hooks/auth'
 import { useToast } from '../../hooks/toast'
+import { SignInPageSchema } from './schema'
 
 import logoImg from '../../assets/brasao.svg'
 
@@ -15,16 +14,7 @@ import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
 
 import { AnimationContainer, Background, Container, Content } from './styles'
-
-interface SignInFormData {
-  email: string
-  password: string
-}
-
-const schema = Yup.object().shape({
-  email: Yup.string().required('E-mail obrigatório').email('Digite um E-mail válido'),
-  password: Yup.string().required('Senha obrigatória'),
-})
+import type { SignInFormData } from './types'
 
 const SignInPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
@@ -37,7 +27,7 @@ const SignInPage: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<SignInFormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(SignInPageSchema),
   })
 
   const onSubmit = useCallback(
@@ -48,6 +38,12 @@ const SignInPage: React.FC = () => {
         await signIn({
           email: data.email,
           password: data.password,
+        })
+
+        addToast({
+          type: 'success',
+          title: 'Login realizado',
+          description: 'Bem-vindo de volta!',
         })
 
         navigate('/militaries')

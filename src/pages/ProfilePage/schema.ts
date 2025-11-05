@@ -1,5 +1,5 @@
 import * as Yup from 'yup'
-import type { FormInput } from './index'
+import type { FormInput } from './types'
 
 export const ProfilePageSchema: Yup.ObjectSchema<FormInput> = Yup.object().shape({
   username: Yup.string().required('Nome de Usuário obrigatório'),

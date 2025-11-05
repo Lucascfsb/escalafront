@@ -24,27 +24,7 @@ import type { ChangeEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth'
 import { AvataInput, Container, Content } from './styles'
-
-interface ProfileUpdateData {
-  username: string
-  email: string
-  role: string
-  oldPassword: string
-  password?: string
-  passwordConfirmation?: string
-}
-
-export type FormInput = {
-  username: string
-  email: string
-  role: {
-    value: string
-    label: string
-  }
-  oldPassword?: string
-  password?: string
-  passwordConfirmation?: string
-}
+import type { FormInput, ProfileUpdateData } from './types'
 
 const ProfilePage: React.FC = () => {
   const { addToast } = useToast()

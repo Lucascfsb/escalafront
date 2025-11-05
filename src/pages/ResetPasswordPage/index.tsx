@@ -1,32 +1,20 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import type React from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { useCallback, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { FiLock } from 'react-icons/fi'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as Yup from 'yup'
-
 import { useToast } from '../../hooks/toast'
+import type { ResetPasswordFormData } from './types'
 
 import logoImg from '../../assets/brasao.svg'
 
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
+import { ResetPasswordSchema } from './schema'
 
 import { api } from '../../services/apiClient'
 import { AnimationContainer, Background, Container, Content } from './styles'
-
-interface ResetPasswordFormData {
-  password: string
-  password_confirmation: string
-}
-
-const schema = Yup.object().shape({
-  password: Yup.string().required('Senha obrigatória!'),
-  password_confirmation: Yup.string()
-    .oneOf([Yup.ref('password'), undefined], 'Confirmação incorreta')
-    .required('Confirmação de senha obrigatória!'),
-})
 
 const ResetPasswordPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
@@ -39,7 +27,7 @@ const ResetPasswordPage: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<ResetPasswordFormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(ResetPasswordSchema),
   })
 
   const onSubmit = useCallback(
@@ -76,13 +64,14 @@ const ResetPasswordPage: React.FC = () => {
         addToast({
           type: 'error',
           title: 'Erro ao resetar senha',
-          description: 'Ocorreu um erro ao resetar sua senha, verifique o token e tente novamente.',
+          description:
+            'Ocorreu um erro ao resetar sua senha, verifique o token e tente novamente.',
         })
       } finally {
         setLoading(false)
       }
     },
-    [addToast, navigate, location.search],
+    [addToast, navigate, location.search]
   )
 
   return (

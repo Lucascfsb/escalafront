@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {
   addWeeks,
   eachDayOfInterval,
@@ -11,40 +10,33 @@ import {
 } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import type React from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useAuth } from '../../hooks/auth'
-import { useToast } from '../../hooks/toast'
-import { api } from '../../services/apiClient'
-import type { Military, ServiceRendered, ServiceType } from './types'
+import { useCallback, useMemo, useState } from 'react'
 
-import { Button } from '../../components/Button'
 import { Layout } from '../../components/Layout'
+import { Pagination } from '../../components/Pagination'
 import { Table } from '../../components/Table'
+import { useAuth } from '../../hooks/auth'
+import { useForecastData } from '../../hooks/useForecastData'
+import { useServiceAssignment } from '../../hooks/useServiceAssignment'
 import { MainContent } from './styles'
+import type { ServiceRendered } from './types'
 
 const ForecastPage: React.FC = () => {
-  const { addToast } = useToast()
   const { user } = useAuth()
   const isAdmin = user?.role === 'admin'
-
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
 
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   )
 
-  const handlePreviousWeek = useCallback(() => {
-    setCurrentWeekStart(prevDate => subWeeks(prevDate, 1))
-  }, [])
-
-  const handleNextWeek = useCallback(() => {
-    setCurrentWeekStart(prevDate => addWeeks(prevDate, 1))
-  }, [])
-
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
-  const [servicesRendered, setServicesRendered] = useState<ServiceRendered[]>([])
-  const [allMilitaries, setAllMilitaries] = useState<Military[]>([])
+  const {
+    serviceTypes,
+    militaries,
+    servicesRendered,
+    setServicesRendered,
+    isLoading,
+    error,
+  } = useForecastData(currentWeekStart)
 
   const daysOfWeek = useMemo(() => {
     const start = currentWeekStart
@@ -52,100 +44,18 @@ const ForecastPage: React.FC = () => {
     return eachDayOfInterval({ start, end })
   }, [currentWeekStart])
 
-  const availableMilitaries = useMemo(() => {
-    const assignedMilitaryIds = servicesRendered
-      .filter(entry => entry.military_id !== null)
-      .map(entry => entry.military_id)
+  const weekRange = useMemo(() => {
+    const endDate = endOfWeek(currentWeekStart, { weekStartsOn: 1 })
+    const start = format(currentWeekStart, 'dd MMM', { locale: ptBR })
+    const end = format(endDate, 'dd MMM yyyy', { locale: ptBR })
+    return `Semana de ${start} - ${end}`
+  }, [currentWeekStart])
 
-    const unassignedMilitaries = allMilitaries.filter(
-      military => !assignedMilitaryIds.includes(military.id)
-    )
+  const formatDateHeader = useCallback((date: Date) => {
+    return format(date, 'eeeeee - dd/MM', { locale: ptBR })
+  }, [])
 
-    return unassignedMilitaries
-  }, [allMilitaries, servicesRendered])
-
-  const fetchServiceTypes = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const response = await api.get<ServiceType[]>('/serviceTypes')
-
-      const orderedServiceTypes = response.data.sort((a, b) => {
-        if (a.name < b.name) return -1
-        if (a.name > b.name) return 1
-        return 0
-      })
-
-      setServiceTypes(orderedServiceTypes)
-    } catch (err) {
-      setError('Erro ao carregar tipos de serviço.')
-      addToast({
-        type: 'error',
-        title: 'Erro',
-        description: 'Não foi possível carregar os tipos de serviço.',
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }, [addToast])
-
-  const fetchAllMilitaries = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const response = await api.get<Military[]>('/militaries')
-      setAllMilitaries(response.data)
-    } catch (err) {
-      setError('Erro ao carregar militares.')
-      addToast({
-        type: 'error',
-        title: 'Erro',
-        description: 'Não foi possível carregar a lista de militares.',
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }, [addToast])
-
-  const fetchServicesRenderedData = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const startDate = format(currentWeekStart, 'yyyy-MM-dd')
-      const endDate = format(
-        endOfWeek(currentWeekStart, { weekStartsOn: 1 }),
-        'yyyy-MM-dd'
-      )
-
-      const response = await api.get<ServiceRendered[]>(
-        `/serviceRendered?startDate=${startDate}&endDate=${endDate}`
-      )
-      setServicesRendered(response.data)
-    } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 404) {
-        setError('Nenhum serviço encontrado para esta semana.')
-      } else {
-        setError('Erro ao carregar previsão de escala.')
-        addToast({
-          type: 'error',
-          title: 'Erro',
-          description: 'Não foi possível carregar a previsão de escala.',
-        })
-      }
-      setServicesRendered([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [currentWeekStart, addToast])
-
-  useEffect(() => {
-    fetchServiceTypes()
-    fetchAllMilitaries()
-  }, [fetchServiceTypes, fetchAllMilitaries])
-
-  useEffect(() => {
-    fetchServicesRenderedData()
-  }, [fetchServicesRenderedData])
+  const { handleAssign, isAssigning } = useServiceAssignment(militaries)
 
   const handleAssignMilitary = useCallback(
     async (
@@ -154,96 +64,25 @@ const ForecastPage: React.FC = () => {
       militaryId: string | null,
       currentEntry: ServiceRendered | undefined
     ) => {
-      setIsLoading(true)
-      setError(null)
-
       try {
-        if (currentEntry) {
-          if (militaryId === null) {
-            await api.delete(`/serviceRendered/${currentEntry.id}`)
+        const result = await handleAssign(serviceTypeId, date, militaryId, currentEntry)
 
-            setServicesRendered(prevServices =>
-              prevServices.filter(entry => entry.id !== currentEntry.id)
-            )
+        if (result === null) return
 
-            addToast({
-              type: 'success',
-              title: 'Atribuição Removida',
-              description: 'Militar desatribuído com sucesso!',
-            })
-          } else {
-            const dataToUpdate = { military_id: militaryId }
-            await api.put(`/serviceRendered/${currentEntry.id}`, dataToUpdate)
-
-            const assignedMilitary = allMilitaries.find(
-              military => military.id === militaryId
-            )
-
-            if (!assignedMilitary) {
-              throw new Error('Militar não encontrado na lista.')
-            }
-
-            const updatedServiceRendered = {
-              ...currentEntry,
-              military_id: militaryId,
-              military: assignedMilitary,
-            }
-            setServicesRendered(prevServices =>
-              prevServices.map(entry =>
-                entry.id === updatedServiceRendered.id ? updatedServiceRendered : entry
-              )
-            )
-
-            addToast({
-              type: 'success',
-              title: 'Atribuição Atualizada',
-              description: 'Militar atribuído com sucesso!',
-            })
-          }
+        if (typeof result === 'string') {
+          setServicesRendered(prev => prev.filter(entry => entry.id !== result))
         } else {
-          if (!militaryId) {
-            addToast({
-              type: 'info',
-              title: 'Nenhuma Alteração',
-              description: 'Nenhum militar selecionado para criar uma nova entrada.',
-            })
-            return
-          }
-
-          const formattedDate = format(date, 'yyyy-MM-dd HH:mm:ss')
-          const dataToSave = {
-            military_id: militaryId,
-            service_types_id: serviceTypeId,
-            service_date: formattedDate,
-          }
-
-          const response = await api.post('/serviceRendered', dataToSave)
-
-          const newServiceRendered = response.data
-          setServicesRendered(prevServices => [...prevServices, newServiceRendered])
-
-          addToast({
-            type: 'success',
-            title: 'Atribuição Criada',
-            description: 'Nova atribuição de militar criada com sucesso!',
+          setServicesRendered(prev => {
+            const exists = prev.find(entry => entry.id === result.id)
+            if (exists) {
+              return prev.map(entry => (entry.id === result.id ? result : entry))
+            }
+            return [...prev, result]
           })
         }
-      } catch (err) {
-        let errorMessage = 'Erro ao atribuir militar. Tente novamente.'
-        if (axios.isAxiosError(err) && err.response?.data?.message) {
-          errorMessage = err.response.data.message
-        }
-        setError(errorMessage)
-        addToast({
-          type: 'error',
-          title: 'Erro de Atribuição',
-          description: errorMessage,
-        })
-      } finally {
-        setIsLoading(false)
-      }
+      } catch (err) {}
     },
-    [addToast, allMilitaries]
+    [handleAssign, setServicesRendered]
   )
 
   const getServiceRenderedEntry = useCallback(
@@ -257,51 +96,54 @@ const ForecastPage: React.FC = () => {
     [servicesRendered]
   )
 
-  const formatDateHeader = useCallback((date: Date) => {
-    return format(date, 'eeeeee - dd/MM', { locale: ptBR })
+  const handlePreviousWeek = useCallback(() => {
+    setCurrentWeekStart(prev => subWeeks(prev, 1))
   }, [])
+
+  const handleNextWeek = useCallback(() => {
+    setCurrentWeekStart(prev => addWeeks(prev, 1))
+  }, [])
+
+  const currentPage = 1
+  const totalPages = 1
 
   return (
     <Layout>
       <MainContent>
-        {isLoading && <p>Carregando...</p>}
+        {error && <p style={{ color: '#c53030' }}>{error}</p>}
+
         {isAdmin && (
           <>
             <h2>Tabela de Edição</h2>
 
-            <div>
-              <h3>
-                {format(currentWeekStart, 'dd MMM', { locale: ptBR })} -{' '}
-                {format(endOfWeek(currentWeekStart, { weekStartsOn: 1 }), 'dd MMM yyyy', {
-                  locale: ptBR,
-                })}
-              </h3>
+            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+              <h3>{weekRange}</h3>
             </div>
 
-            <div>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '750px',
-                  width: '100%',
-                  marginBottom: '1rem',
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '1rem',
+              }}
+            >
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={page => {
+                  if (page < currentPage) handlePreviousWeek()
+                  if (page > currentPage) handleNextWeek()
                 }}
-              >
-                <Button type="button" onClick={handlePreviousWeek} disabled={isLoading}>
-                  Anterior
-                </Button>
-                <Button type="button" onClick={handleNextWeek} disabled={isLoading}>
-                  Próxima
-                </Button>
-              </div>
+                isLoading={isLoading || isAssigning}
+              />
             </div>
 
             <Table
               serviceTypes={serviceTypes}
               daysOfWeek={daysOfWeek}
-              allMilitaries={allMilitaries}
+              allMilitaries={militaries}
               servicesRendered={servicesRendered}
-              isLoading={isLoading}
+              isLoading={isLoading || isAssigning}
               handleAssignMilitary={handleAssignMilitary}
               getServiceRenderedEntry={getServiceRenderedEntry}
               formatDateHeader={formatDateHeader}
@@ -311,38 +153,33 @@ const ForecastPage: React.FC = () => {
 
         <h2>Previsão de Escala de Serviço</h2>
 
-        <div>
-          <h3>
-            {format(currentWeekStart, 'dd MMM', { locale: ptBR })} -{' '}
-            {format(endOfWeek(currentWeekStart, { weekStartsOn: 1 }), 'dd MMM yyyy', {
-              locale: ptBR,
-            })}
-          </h3>
+        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <h3>{weekRange}</h3>
         </div>
 
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              gap: '750px',
-              width: '100%',
-              marginBottom: '1rem',
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '1rem',
+          }}
+        >
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={page => {
+              if (page < currentPage) handlePreviousWeek()
+              if (page > currentPage) handleNextWeek()
             }}
-          >
-            <Button type="button" onClick={handlePreviousWeek} disabled={isLoading}>
-              Anterior
-            </Button>
-            <Button type="button" onClick={handleNextWeek} disabled={isLoading}>
-              Próxima
-            </Button>
-          </div>
+            isLoading={isLoading}
+          />
         </div>
 
         {serviceTypes.length > 0 && daysOfWeek.length > 0 ? (
           <Table
             serviceTypes={serviceTypes}
             daysOfWeek={daysOfWeek}
-            allMilitaries={allMilitaries}
+            allMilitaries={militaries}
             servicesRendered={servicesRendered}
             isLoading={isLoading}
             handleAssignMilitary={handleAssignMilitary}
