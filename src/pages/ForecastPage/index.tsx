@@ -12,8 +12,9 @@ import { ptBR } from 'date-fns/locale'
 import type React from 'react'
 import { useCallback, useMemo, useState } from 'react'
 
+import { red } from '@mui/material/colors'
+import { Button } from '../../components/Button'
 import { Layout } from '../../components/Layout'
-import { Pagination } from '../../components/Pagination'
 import { Table } from '../../components/Table'
 import { useAuth } from '../../hooks/auth'
 import { useForecastData } from '../../hooks/useForecastData'
@@ -116,26 +117,31 @@ const ForecastPage: React.FC = () => {
           <>
             <h2>Tabela de Edição</h2>
 
-            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <h3>{weekRange}</h3>
+            <div>
+              <h3>
+                {format(currentWeekStart, 'dd MMM', { locale: ptBR })} -{' '}
+                {format(endOfWeek(currentWeekStart, { weekStartsOn: 1 }), 'dd MMM yyyy', {
+                  locale: ptBR,
+                })}
+              </h3>
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: '1rem',
-              }}
-            >
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={page => {
-                  if (page < currentPage) handlePreviousWeek()
-                  if (page > currentPage) handleNextWeek()
+            <div>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '750px',
+                  width: '100%',
+                  marginBottom: '1rem',
                 }}
-                isLoading={isLoading || isAssigning}
-              />
+              >
+                <Button type="button" onClick={handlePreviousWeek} disabled={isLoading}>
+                  Anterior
+                </Button>
+                <Button type="button" onClick={handleNextWeek} disabled={isLoading}>
+                  Próxima
+                </Button>
+              </div>
             </div>
 
             <Table
@@ -153,26 +159,31 @@ const ForecastPage: React.FC = () => {
 
         <h2>Previsão de Escala de Serviço</h2>
 
-        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <h3>{weekRange}</h3>
+        <div>
+          <h3>
+            {format(currentWeekStart, 'dd MMM', { locale: ptBR })} -{' '}
+            {format(endOfWeek(currentWeekStart, { weekStartsOn: 1 }), 'dd MMM yyyy', {
+              locale: ptBR,
+            })}
+          </h3>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '1rem',
-          }}
-        >
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={page => {
-              if (page < currentPage) handlePreviousWeek()
-              if (page > currentPage) handleNextWeek()
+        <div>
+          <div
+            style={{
+              display: 'flex',
+              gap: '750px',
+              width: '100%',
+              marginBottom: '1rem',
             }}
-            isLoading={isLoading}
-          />
+          >
+            <Button type="button" onClick={handlePreviousWeek} disabled={isLoading}>
+              Anterior
+            </Button>
+            <Button type="button" onClick={handleNextWeek} disabled={isLoading}>
+              Próxima
+            </Button>
+          </div>
         </div>
 
         {serviceTypes.length > 0 && daysOfWeek.length > 0 ? (
