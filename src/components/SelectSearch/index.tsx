@@ -32,7 +32,7 @@ const SelectSearch: React.FC<SearchableSelectProps> = ({
   error,
   isSelectClearable = true,
   isSelectSearchable = true,
-  ...rest
+  menuPlacement = 'auto',
 }) => {
   return (
     <SelectContainer $isErrored={!!error}>
@@ -51,7 +51,8 @@ const SelectSearch: React.FC<SearchableSelectProps> = ({
           isClearable={isSelectClearable}
           classNamePrefix="custom-select"
           isSearchable={isSelectSearchable}
-          {...rest}
+          menuPlacement={menuPlacement}
+          menuPosition="fixed"
         />
       </SelectStyles>
       {error && (

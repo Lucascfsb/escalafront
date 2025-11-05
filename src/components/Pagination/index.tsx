@@ -63,6 +63,7 @@ const Pagination: React.FC<PaginationProps> = ({
         placeholder=""
         isSelectClearable={false}
         isSelectSearchable={false}
+        menuPlacement="auto"
       />
     </PaginationContainer>
   )

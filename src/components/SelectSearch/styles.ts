@@ -57,9 +57,12 @@ export const SelectStyles = styled.div`
     align-items: center;
   }
   
-  .custom-select__placeholder,
+  .custom-select__placeholder{
+  font-size: 14px;
+  }
+
   .custom-select__single-value {
-    font-size: 16px;
+    font-size: 14px;
     color: #333;
     margin-left: 4px;
     margin-right: 0;

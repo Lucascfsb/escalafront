@@ -75,61 +75,6 @@ const Table: React.FC<TableProps> = ({
   formatDateHeader,
   isReadOnly,
 }) => {
-  const selectStyles = {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    menuPortal: (base: any) => ({
-      ...base,
-      zIndex: 9999,
-    }),
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    menu: (base: any) => ({
-      ...base,
-      backgroundColor: '#312e38',
-      border: '1px solid #232129',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
-      fontSize: '14px',
-    }),
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    option: (base: any, state: any) => ({
-      ...base,
-      padding: '6px 8px',
-      backgroundColor: state.isSelected
-        ? '#f0c14b'
-        : state.isFocused
-          ? '#3e3b47'
-          : '#312e38',
-      color: '#f4ede8',
-      cursor: 'pointer',
-    }),
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    control: (base: any) => ({
-      ...base,
-      backgroundColor: 'transparent',
-      border: 'none',
-      boxShadow: 'none',
-      minHeight: '30px',
-    }),
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    singleValue: (base: any) => ({
-      ...base,
-      color: '#f4ede8',
-    }),
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    placeholder: (base: any) => ({
-      ...base,
-      color: '#999591',
-      fontSize: '14px !important',
-    }),
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    input: (base: any) => ({
-      ...base,
-      color: '#333',
-      margin: 0,
-      padding: 0,
-      fontSize: '14px !important',
-    }),
-  }
-
   return (
     <div>
       <TableContainer>
@@ -184,8 +129,8 @@ const Table: React.FC<TableProps> = ({
                             icon={FiUser}
                             options={militaryOptions}
                             placeholder="Selecione o militar"
-                            menuPortalTarget={document.body}
-                            styles={selectStyles}
+                            menuPosition="absolute"
+                            menuPlacement="auto"
                             value={
                               currentEntry?.military
                                 ? {
