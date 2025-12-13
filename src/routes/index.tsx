@@ -9,6 +9,7 @@ import { MilServicesPage } from '../pages/MilServicesPage'
 import { MilitariesPage } from '../pages/MilitariesPage'
 import { ProfilePage } from '../pages/ProfilePage'
 import { ResetPasswordPage } from '../pages/ResetPasswordPage'
+import { ScheduleSuggestionPage } from '../pages/ScheduleSuggestionPage'
 import { SignInPage } from '../pages/SignInPage'
 import { SignUpPage } from '../pages/SignUpPage'
 
@@ -33,6 +34,10 @@ const AppRoutes: React.FC = () => (
     <Route
       path="/profile"
       element={<ProtectedRoute element={<ProfilePage />} isPrivate />}
+    />
+    <Route
+      path="/schedule-suggestion"
+      element={<ProtectedRoute element={<ScheduleSuggestionPage />} isPrivate />}
     />
   </Routes>
 )

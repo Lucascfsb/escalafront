@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 export const MainContent = styled.div`
   flex: 1;
-  color: #f4ede8;
   padding: 32px;
   background: linear-gradient(to bottom, ${shade(0.05, '#808000')}, #312e38);
   border-radius: 8px;

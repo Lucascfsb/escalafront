@@ -17,7 +17,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/militaries', label: 'Militares' },
     { path: '/services', label: 'Serviços' },
     { path: '/forecast', label: 'Previsão' },
-    { path: '/schedule', label: 'Escala de serviço' },
+    { path: '/schedule-suggestion', label: 'Sugestão de Escala' },
     { path: '/users', label: 'Usuários' },
   ]
 
