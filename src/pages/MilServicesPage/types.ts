@@ -5,6 +5,7 @@ export interface ServiceType {
   rank: string
   created_at: string
   update_at: string
+  updated_at: string | Date
 }
 
 export type ServiceFormData = {

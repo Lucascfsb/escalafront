@@ -1,4 +1,5 @@
-import type { Military, MilitaryFormData } from '../pages/MilitariesPage/types'
+import type { Military } from '../@types/types'
+import type { MilitaryFormData } from '../pages/MilitariesPage/types'
 import { api } from './apiClient'
 
 class MilitaryService {
@@ -22,6 +23,7 @@ class MilitaryService {
       rank: data.rank,
       qualification: data.qualification,
       date_of_entry: data.date_of_entry,
+      service_types: data.service_types,
     })
     return response.data
   }
@@ -32,6 +34,7 @@ class MilitaryService {
       rank: data.rank,
       qualification: data.qualification,
       date_of_entry: data.date_of_entry,
+      service_types: data.service_types,
     })
     return response.data
   }

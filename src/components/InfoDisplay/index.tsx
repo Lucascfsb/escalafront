@@ -5,7 +5,7 @@ interface BaseItem {
   id: string
   name: string
   created_at: string
-  update_at: string
+  updated_at: string
 }
 
 interface InfoDisplayProps<T extends BaseItem> {
@@ -35,7 +35,7 @@ export function InfoDisplay<Type extends BaseItem>({
 
         {fields.map(field => (
           <p key={field.label}>
-            <span>{field.label}:</span> 
+            <span>{field.label}:</span>
             <strong className="field-value">{field.value}</strong>
           </p>
         ))}

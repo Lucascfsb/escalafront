@@ -2,13 +2,19 @@ export interface BaseItem {
   id: string
   name: string
   created_at: string
-  update_at: string
+  updated_at: string
 }
 
 export interface Military extends BaseItem {
+  name: string
   rank: string
   qualification: string
   date_of_entry: string
+  eligibleServiceTypes?: Array<{
+    id: string
+    name: string
+    description: string | null
+  }>
 }
 
 export interface Service extends BaseItem {

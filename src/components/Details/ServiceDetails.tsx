@@ -32,15 +32,6 @@ export const ServiceDetails: React.FC<ServiceDetailsProps> = ({
       <p>
         Posto/Graduação: <span>{service.rank || 'Não informado'}</span>
       </p>
-      <p>
-        Data de Criação:
-        <span>
-          {' '}
-          {service.created_at
-            ? format(parseISO(service.created_at), 'dd/MM/yyyy')
-            : 'Não informada'}
-        </span>
-      </p>
       <div
         style={{
           marginTop: '15px',

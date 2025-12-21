@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { se } from 'date-fns/locale'
 import { useCallback, useEffect, useState } from 'react'
 import type { ServiceFormData, ServiceType } from '../pages/MilServicesPage/types'
 import { milServiceService } from '../services/milServiceServices'
@@ -17,8 +18,9 @@ export const useServices = (searchTerm: string) => {
     try {
       const data = await milServiceService.getAll(searchTerm || undefined)
       setServices(data)
+      setError(null)
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 404) {
+      if (axios.isAxiosError(err) && err.response?.status === 400) {
         const message = `Nenhum serviço encontrado ${searchTerm ? `com o título "${searchTerm}"` : ''}.`
         setError(message)
         addToast({

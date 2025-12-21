@@ -1,7 +1,7 @@
 import type React from 'react'
 
 import { FiZoomOut } from 'react-icons/fi'
-import type { Military } from '../../../pages/MilitariesPage/types'
+import type { Military } from '../../../../src/@types/types'
 import { MilitaryDisplay } from '../../InfoDisplay/Display/MilitaryDisplay'
 
 import { EmptyState, ListContainer } from './styled'

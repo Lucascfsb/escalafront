@@ -27,6 +27,13 @@ const MilitaryDisplay: React.FC<MilitaryDisplayProps> = ({
         label: 'Data de Entrada',
         value: new Date(military.date_of_entry).toLocaleDateString(),
       },
+      {
+        label: 'Tipos de Serviço',
+        value:
+          military.eligibleServiceTypes && military.eligibleServiceTypes.length > 0
+            ? military.eligibleServiceTypes.map(st => st.name).join(', ')
+            : 'Nenhum serviço',
+      },
     ]}
   />
 )

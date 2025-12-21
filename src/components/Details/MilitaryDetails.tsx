@@ -1,6 +1,6 @@
 import { format, parseISO } from 'date-fns'
 import type React from 'react'
-import type { Military } from '../../pages/MilitariesPage/types'
+import type { Military } from '../../@types/types'
 import { Button } from '../Button'
 
 interface MilitaryDetailsProps {
@@ -41,6 +41,12 @@ export const MilitaryDetails: React.FC<MilitaryDetailsProps> = ({
         {military.date_of_entry
           ? format(parseISO(military.date_of_entry), 'dd/MM/yyyy')
           : 'Não informada'}
+      </p>
+      <p>
+        <strong>Tipos de Serviço:</strong>{' '}
+        {military.eligibleServiceTypes && military.eligibleServiceTypes.length > 0
+          ? military.eligibleServiceTypes.map(st => st.name).join(', ')
+          : 'Nenhum tipo de serviço associado'}
       </p>
 
       <div

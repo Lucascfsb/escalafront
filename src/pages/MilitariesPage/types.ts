@@ -1,18 +1,9 @@
-export interface Military {
-  id: string
-  name: string
-  rank: string
-  qualification: string
-  date_of_entry: string
-  created_at: string
-  update_at: string
-}
-
 export interface MilitaryFormData {
   name: string
   rank: string
   qualification: string
   date_of_entry: string
+  service_types?: string[]
 }
 
 export interface SearchFormData {
@@ -20,4 +11,3 @@ export interface SearchFormData {
 }
 
 export type ViewMode = 'card' | 'list'
-

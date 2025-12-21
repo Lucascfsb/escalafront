@@ -1,14 +1,47 @@
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
-import type { Military, MilitaryFormData } from '../pages/MilitariesPage/types'
+import type { Military } from '../@types/types'
+import type { MilitaryFormData } from '../pages/MilitariesPage/types'
 import { militaryService } from '../services/militaryService'
+import { serviceTypeService } from '../services/serviceTypeService'
 import { useToast } from './toast'
+
+export interface ServiceType {
+  id: string
+  name: string
+  description: string | null
+}
 
 export const useMilitaries = (searchTerm = '') => {
   const [militaries, setMilitaries] = useState<Military[]>([])
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingServiceTypes, setIsLoadingServiceTypes] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { addToast } = useToast()
+
+  const fetchServiceTypes = useCallback(async () => {
+    setIsLoadingServiceTypes(true)
+    try {
+      const data = await serviceTypeService.getAll()
+      setServiceTypes(data)
+    } catch (err) {
+      const is404 = axios.isAxiosError(err) && err.response?.status === 404
+
+      if (is404) {
+        setServiceTypes([])
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Erro ao carregar tipos de serviço',
+          description: 'Não foi possível carregar os tipos de serviço disponíveis.',
+        })
+        setServiceTypes([])
+      }
+    } finally {
+      setIsLoadingServiceTypes(false)
+    }
+  }, [addToast])
 
   const fetchMilitaries = useCallback(
     async (name?: string) => {
@@ -129,11 +162,14 @@ export const useMilitaries = (searchTerm = '') => {
 
   useEffect(() => {
     fetchMilitaries(searchTerm || undefined)
-  }, [fetchMilitaries, searchTerm])
+    fetchServiceTypes()
+  }, [fetchMilitaries, fetchServiceTypes, searchTerm])
 
   return {
     militaries,
+    serviceTypes,
     isLoading,
+    isLoadingServiceTypes,
     error,
     createMilitary,
     updateMilitary,

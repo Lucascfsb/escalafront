@@ -15,8 +15,10 @@ import { Modal } from '../../components/Modal'
 import { Pagination } from '../../components/Pagination'
 import { MilitarySearch } from '../../components/Search/Search'
 
+import type { Military } from '../../../src/@types/types'
+import { useServices } from '../../hooks/useServices'
 import { ButtonContainer, MainContent } from './styles'
-import type { Military, MilitaryFormData, ViewMode } from './types'
+import type { MilitaryFormData, ViewMode } from './types'
 
 export const MilitariesPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('card')
@@ -25,6 +27,7 @@ export const MilitariesPage: React.FC = () => {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false)
   const [militaryToEdit, setMilitaryToEdit] = useState<Military | null>(null)
   const [militaryForActions, setMilitaryForActions] = useState<Military | null>(null)
+  const { services: allServices } = useServices('')
 
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(12)
@@ -47,8 +50,11 @@ export const MilitariesPage: React.FC = () => {
     if (!militaryToEdit) return undefined
 
     return {
-      ...militaryToEdit,
+      name: militaryToEdit.name,
       date_of_entry: format(parseISO(militaryToEdit.date_of_entry), 'yyyy-MM-dd'),
+      rank: militaryToEdit.rank,
+      qualification: militaryToEdit.qualification,
+      serviceTypes: militaryToEdit.eligibleServiceTypes?.map(st => st.id) || [],
     } as MilitaryFormData
   }, [militaryToEdit])
 
@@ -147,7 +153,11 @@ export const MilitariesPage: React.FC = () => {
         }}
         title={militaryToEdit ? 'Atualizar Militar' : 'Cadastrar Novo Militar'}
       >
-        <MilitaryForm onSubmit={handleSubmitMilitary} initialData={initialFormData} />
+        <MilitaryForm
+          onSubmit={handleSubmitMilitary}
+          initialData={initialFormData}
+          serviceTypes={allServices}
+        />
       </Modal>
 
       {militaryForActions && (

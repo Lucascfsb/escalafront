@@ -10,19 +10,22 @@ interface ServiceListProps {
   onIconClick: (service: ServiceType) => void
 }
 
-export const ServiceList: React.FC<ServiceListProps> = ({
-  services,
-  onIconClick,
-}) => {
+export const ServiceList: React.FC<ServiceListProps> = ({ services, onIconClick }) => {
   return (
     <ListContainer>
       {services.length > 0 ? (
         services.map(service => (
           <ServiceDisplay
-            key={service.id} 
-            service={service}
+            key={service.id}
+            service={{
+              ...service,
+              updated_at:
+                typeof service.updated_at === 'string'
+                  ? service.updated_at
+                  : service.updated_at.toISOString(),
+            }}
             onIconClick={() => onIconClick(service)}
-            viewMode="list" 
+            viewMode="list"
           />
         ))
       ) : (
